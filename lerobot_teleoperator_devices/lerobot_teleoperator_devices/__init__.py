@@ -2,3 +2,4 @@ from .config_gamepad_6dof import Gamepad6DOFTeleopConfig
 from .config_keyboard_joint import KeyboardJointTeleopConfig
 from .gamepad_6dof import Gamepad6DOFTeleop
 from .keyboard_joint import KeyboardJointTeleop
+from .teachbot_joint_state import TeachbotJointStateTeleop

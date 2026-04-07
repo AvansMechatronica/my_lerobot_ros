@@ -9,5 +9,6 @@ lerobot-record \
     --dataset.num_episodes=5 \
     --dataset.single_task="Grab the black cube" \
     --dataset.streaming_encoding=true \
+    --teleop=teachbot_joint_state \
     # --dataset.vcodec=auto \
     #--dataset.encoder_threads=2
