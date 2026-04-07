@@ -1,5 +1,6 @@
 from typing import Any
 from lerobot.teleoperators import Teleoperator
+from .config_teachbot_joint_state import TeachbotTeleopConfig
 
 class TeachbotJointStateTeleop(Teleoperator):
     """
@@ -7,8 +8,9 @@ class TeachbotJointStateTeleop(Teleoperator):
     """
     config_class = None  # Set to a config class if you want to support configuration
     name = "teachbot_joint_state"
+    config_class = TeachbotTeleopConfig
 
-    def __init__(self, config: Any = None):
+    def __init__(self, config: TeachbotTeleopConfig):
         super().__init__(config)
         self.config = config
         self.latest_joint_state = None
