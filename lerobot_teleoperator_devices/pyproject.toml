@@ -40,6 +40,9 @@ dependencies = [
     "pygame",
 ]
 
+[project.entry-points."lerobot.teleoperators"]
+teachbot_joint_state = "lerobot_teleoperator_devices:TeachbotJointStateTeleop"
+
 [tool.ruff]
 line-length = 110
 target-version = "py310"

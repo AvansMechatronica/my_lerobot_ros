@@ -1,22 +1,33 @@
-from typing import Any
+
+from typing import Any, Optional
 from lerobot.teleoperators import Teleoperator
 from .config_teachbot_joint_state import TeachbotTeleopConfig
 
+
 class TeachbotJointStateTeleop(Teleoperator):
     """
-    Teleop class to subscribe to /teachbot/joint_states and relay joint states.
+    Teleoperator device for relaying joint states from /teachbot/joint_states via ROS2.
+    Implements LeRobot teleoperator conventions for integration and discoverability.
     """
-    config_class = None  # Set to a config class if you want to support configuration
     name = "teachbot_joint_state"
     config_class = TeachbotTeleopConfig
 
+
     def __init__(self, config: TeachbotTeleopConfig):
+        """
+        Initialize the teleoperator with the given configuration.
+        """
         super().__init__(config)
         self.config = config
-        self.latest_joint_state = None
-        self._setup_ros2_subscriber()
+        self.latest_joint_state: Optional[Any] = None
+        self.rclpy = None
+        self.node = None
+        self._ros2_initialized = False
 
-    def _setup_ros2_subscriber(self):
+    def _setup_ros2_subscriber(self) -> None:
+        """
+        Set up the ROS2 subscriber for /teachbot/joint_states.
+        """
         try:
             import rclpy
             from rclpy.node import Node
@@ -41,11 +52,29 @@ class TeachbotJointStateTeleop(Teleoperator):
         self.rclpy = rclpy
         self.node = JointStateListener(self)
         self.rclpy.init()
+        self._ros2_initialized = True
 
-    def get_action(self) -> dict[str, float]:
+    def get_action(self) -> Optional[dict[str, float]]:
         """
-        Returns only the joint values (positions) from the latest joint state received from /teachbot/joint_states.
+        Return the latest joint positions as a dict, or None if no data is available.
+        Keys are joint names with '.pos' suffix, values are positions.
         """
         if self.latest_joint_state is not None and hasattr(self.latest_joint_state, 'position') and hasattr(self.latest_joint_state, 'name'):
             return {f"{name}.pos": pos for name, pos in zip(self.latest_joint_state.name, self.latest_joint_state.position)}
         return None
+
+    def connect(self) -> None:
+        """
+        Establish connection to the teleoperator hardware (ROS2 node).
+        """
+        if not self._ros2_initialized:
+            self._setup_ros2_subscriber()
+
+    def disconnect(self) -> None:
+        """
+        Gracefully disconnect from the teleoperator hardware (ROS2 node).
+        """
+        if self.rclpy and self.node:
+            self.rclpy.shutdown()
+            self.node = None
+            self._ros2_initialized = False

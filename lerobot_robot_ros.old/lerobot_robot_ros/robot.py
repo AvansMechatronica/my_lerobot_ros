@@ -184,8 +184,19 @@ class ROS2Robot(Robot):
 
 
 class SO101ROS(ROS2Robot):
+    """
+    SO101 robot implementation for LeRobot, using ROS2 interface.
+    """
     pass
 
-
 class AnninAR4(ROS2Robot):
+    """
+    Annin Robotics AR4 robot implementation for LeRobot, using ROS2 interface.
+    """
+    pass
+
+class UR5ROS(ROS2Robot):
+    """
+    Universal Robots UR5 implementation for LeRobot, using ROS2 interface.
+    """
     pass
