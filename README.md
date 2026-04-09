@@ -33,12 +33,12 @@ Stel eerst LeRobot en lerobot-ros in een virtuele omgeving in. Let op: de Python
 
 ```bash
 # Controleer dat Python 3.12 beschikbaar is voor ROS 2 Jazzy
-python3.12 --version
+python3 --version
 
 # Maak een virtuele Python omgeving in de lerobot directory
 mkdir ~/lerobot
 cd ~/lerobot
-python3.12 -m venv .venv
+python3 -m venv .venv
 source .venv/bin/activate
 
 # Installeer LeRobot software
@@ -76,10 +76,24 @@ lerobot-teleoperate \
 ```
 Zodra teleoperatie werkt, kunt u alle standaard LeRobot-functies zoals gewoonlijk gebruiken.
 
+## Activeren van environment
+Bij het openen van een nieuwe terminal, navigeer naar de lerobot directory en activeer de virtuele omgeving:
 
+```bash
+cd ~/lerobot
+source .venv/bin/activate
+```
 
+### Automatiseren van environment activatie
+Om het activeren van de virtuele omgeving te automatiseren bij het openen van een nieuwe terminal, kunt u de volgende regel toevoegen aan uw shell-configuratiebestand (~/.bashrc`):
 
-
+```bash
+# Automatisch activeren van de lerobot virtuele omgeving
+if [ -d "$HOME/lerobot/.venv" ]; then
+    source "$HOME/lerobot/.venv/bin/activate"
+fi
+```
+Voeg deze regel toe aan het einde van uw `~/.bashrc`-bestand en sla het op. De volgende keer dat u een nieuwe terminal opent, zal de lerobot virtuele omgeving automatisch worden geactiveerd.
 
 
 

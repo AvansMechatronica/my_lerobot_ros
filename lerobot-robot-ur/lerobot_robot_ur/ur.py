@@ -60,6 +60,7 @@ class Ur(Robot):
         return self._motors_ft
 
     def send_action(self, action: dict[str, Any]) -> dict[str, Any]:
+        print("Robot action:", action)
         if not self.is_connected:
             raise DeviceNotConnectedError(f"{self} is not connected.")
 

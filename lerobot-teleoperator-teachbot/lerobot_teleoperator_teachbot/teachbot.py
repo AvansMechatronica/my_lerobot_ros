@@ -4,6 +4,7 @@ from .config_teachbot import TeachbotConfig
 from teleop import Teleop as SpesTeleop
 import numpy as np
 import threading
+from .ros_interface import ROS2Interface
 
 
 class Teachbot(Teleoperator):
@@ -13,6 +14,7 @@ class Teachbot(Teleoperator):
     def __init__(self, config: TeachbotConfig):
         super().__init__(config)
         self.config = config
+        self.ros2_interface = ROS2Interface(config=config)
         self._connected = False
         self._calibrated = True
         self._home = False
@@ -37,8 +39,8 @@ class Teachbot(Teleoperator):
         return self._connected
 
     def connect(self, calibrate: bool = True) -> None:
+        self.ros2_interface.connect()
         self._connected = True
-        #threading.Thread(target=self._server.run, daemon=True).start()
 
     @property
     def is_calibrated(self) -> bool:
@@ -51,11 +53,15 @@ class Teachbot(Teleoperator):
         pass
 
     def get_action(self) -> dict[str, Any]:
-        return{}
+        action = self.ros2_interface.joint_state
+        #print("Teachbot action:", action)
+        return action
 
     def send_feedback(self, feedback: dict[str, float]) -> None:
         pass
 
-    def disconnect(self) -> None:
+    def disconnect(self) -> None: 
+        self.ros2_interface.disconnect()
         self._connected = False
-        #self._server.stop()
+        self._calibrated = False
+        self._home = False
