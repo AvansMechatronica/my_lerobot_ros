@@ -2,7 +2,7 @@ import logging
 from typing import Any
 
 
-from xarm.wrapper import XArmAPI
+
 
 
 from lerobot.cameras import make_cameras_from_configs
@@ -16,7 +16,7 @@ logger = logging.getLogger(__name__)
 
 
 class Lite6Gripper:
-    def __init__(self, arm: XArmAPI):
+    def __init__(self):
         pass
     def open(self):
         pass
@@ -42,7 +42,7 @@ class Ur(Robot):
     def __init__(self, config: UrConfig):
         super().__init__(config)
         self.cameras = make_cameras_from_configs(config.cameras)
-        self._gripper = Lite6Gripper(None)
+        self._gripper = Lite6Gripper()
         self._is_connected = False
         
 

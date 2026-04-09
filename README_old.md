@@ -2,7 +2,7 @@
 
 Deze repository biedt een generieke ROS 2-interface voor het [LeRobot](https://github.com/huggingface/lerobot)-framework. Het fungeert als een lichtgewicht wrapper om elke [ros2_control](https://control.ros.org/rolling/index.html)- of [MoveIt](https://moveit.ai/)-compatibele robotarm te verbinden met het LeRobot-ecosysteem.
 
-
+Er is ook een gamepad-teleoperator voor 6-DoF eindeffector-besturing en een toetsenbord-teleoperator voor gewrichtspositiebesturing meegeleverd.
 
 **Ondersteunde besturingsmodi:**
 
@@ -15,6 +15,9 @@ Deze repository biedt een generieke ROS 2-interface voor het [LeRobot](https://g
   - Met [joint_trajectory_controller](https://control.ros.org/rolling/doc/ros2_controllers/joint_trajectory_controller/doc/userdoc.html)
   - Met [Gripper Action Controller](https://control.ros.org/jazzy/doc/ros2_controllers/gripper_controllers/doc/userdoc.html)
 
+## Videodemo
+
+[![lerobot-ros](https://markdown-videos-api.jorgenkh.no/url?url=https%3A%2F%2Fyoutu.be%2F8U8vDyi5IAs)](https://youtu.be/8U8vDyi5IAs)
 
 ## Vereisten
 
@@ -24,75 +27,54 @@ Zorg ervoor dat het volgende is geïnstalleerd voordat u begint:
 
 - [ROS 2 Jazzy](https://docs.ros.org/en/jazzy/Installation.html) - Deze repo is alleen getest op Jazzy.
 - [ros2_control](https://control.ros.org/rolling/index.html)
-- [Universal Robots Template](https://avansmechatronica.github.io/my_ur_ROS2/)
-- [Teachbot ROS software](https://avansmechatronica.github.io/teachbot/)
+- Als eindeffector-besturing gewenst is, moet [MoveIt2](https://moveit.ai/install-moveit2/binary) worden geïnstalleerd
 
-## Snelstart
+## Snelstart met gesimuleerde SO-101
+
+De onderstaande stappen stellen u in staat om toetsenbord-teleoperatie uit te voeren van een gesimuleerde SO-101-arm met behulp van Lerobot.
+
+---
 
 Stel eerst LeRobot en lerobot-ros in een virtuele omgeving in. Let op: de Python-versie van de virtualenv moet compatibel zijn met uw ROS-versie. Voor ROS 2 Jazzy gebruiken we Python 3.12.
 
 ```bash
-# Controleer dat Python 3.12 beschikbaar is voor ROS 2 Jazzy
-python3.12 --version
+# Maak en activeer een virtuele omgeving
+conda create -y -n lerobot-ros python=3.12
+conda activate lerobot-ros
+conda install -c conda-forge libstdcxx-ng -y # nodig omdat rclpy GLIBCXX_3.4.30-symbolen vereist
 
-# Maak een virtuele Python omgeving in de lerobot directory
-mkdir ~/lerobot
-cd ~/lerobot
-python3.12 -m venv .venv
-source .venv/bin/activate
+# ROS-omgeving laden
+source /opt/ros/jazzy/setup.sh
 
-# Installeer LeRobot software
-git clone https://github.com/huggingface/lerobot.git
-cd lerobot
-pip install -e .
-
-# Installeer LeRobot specifieke ROS integraties
-cd ~/lerobot
-git clone https://github.com/AvansMechatronica/my_lerobot_ros.git
-cd my_lerobot_ros
-# Installeer Teachbot support
-pip install -e lerobot-teleoperator-teachbot
-# Installeer Universal Robot support
-pip install -e lerobot-robot-ur
-
+# lerobot-ros-pakketten installeren (dit installeert ook een compatibele versie van lerobot)
+git clone https://github.com/ycheng517/lerobot-ros
+cd lerobot-ros
+pip install -e lerobot_robot_ros lerobot_teleoperator_devices
 ```
 
+Stel vervolgens de gesimuleerde SO-101 in door de instructies te volgen op: https://github.com/Pavankv92/lerobot_ws
 
 Ten slotte, om alle programma's uit te voeren:
 
 ```bash
 # In terminal 1, start de Gazebo-simulatie
-
+ros2 launch lerobot_description so101_gazebo.launch.py
 
 # In terminal 2, laad de ros2-controllers en start MoveIt
+ros2 launch lerobot_controller so101_controller.launch.py && \
+  ros2 launch lerobot_moveit so101_moveit.launch.py
 
-
-# In terminal 3, start lerobot met de ROS-versie
+# In terminal 3, start lerobot met de ROS-versie van so101 en toetsenbord-teleop
+cd <UW lerobot-ros DIRECTORY>
 lerobot-teleoperate \
-  --robot.type=lerobot_robot_ur \
-  --teleop.type=lerobot_teleoperator_teachbot \
-  --fps=60
-
+  --robot.type=so101_ros \
+  --robot.id=my_awesome_follower_arm \
+  --teleop.type=keyboard_joint \
+  --teleop.id=my_awesome_leader_arm \
+  --display_data=true
 ```
+
 Zodra teleoperatie werkt, kunt u alle standaard LeRobot-functies zoals gewoonlijk gebruiken.
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-# Hieronder nog aanpassen
-
-
-
 
 ## Handleiding voor Robot-integratie
 
