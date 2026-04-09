@@ -1,0 +1,30 @@
+[build-system]
+requires = ["setuptools>=61", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "lerobot_robot_ur"
+version = "0.0.4"
+description = "LeRobot Universal Robots integration"
+readme = "README.md"
+authors = [
+  { name = "Gerard Harkema", email = "GerardAnneHarkema@gmail.com" },
+]
+license = { file = "LICENSE" }
+requires-python = ">=3.10"
+classifiers = [
+  "Programming Language :: Python :: 3",
+  "License :: OSI Approved :: Apache Software License",
+  "Operating System :: OS Independent",
+]
+dependencies = [
+  "teleop",
+  "lerobot>=0.4",
+]
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["lerobot_robot_ur*"]
+exclude = ["*.egg-info"]
+
+
