@@ -83,6 +83,7 @@ class Ur(Robot):
 
         #gripper_pos = action["gripper.pos"]
         #self.ros2_interface.send_gripper_command(gripper_pos)
+
         # Ensure all required action keys are present for dataset writing
         required_keys = [f"{joint}.pos" for joint in self.config.ros2_interface.arm_joint_names]
         # Optionally add gripper
@@ -92,7 +93,7 @@ class Ur(Robot):
         for key in required_keys:
             if key not in action:
                 action[key] = 0.0
-
+        #print(f"Final action sent: {action}")
         return action
 
 

@@ -84,6 +84,8 @@ class UrConfig(ROS2Config):
             ],
             gripper_joint_name="gripper_joint",
             base_link="base_link",
+            trajectory_publisher="/arm_controller/joint_trajectory",
+            joint_trajectory_action="/joint_trajectory_controller/follow_joint_trajectory",
             min_joint_positions=[-6.283, -2.356, -3.141, -6.283, -6.283, -6.283],
             max_joint_positions=[6.283, 2.356, 3.141, 6.283, 6.283, 6.283],
             gripper_open_position=0.0,
@@ -107,43 +109,44 @@ class UrConfig(ROS2Config):
         )
     )
 
-
-#@RobotConfig.register_subclass("lerobot_robot_ur")
+@RobotConfig.register_subclass("lerobot_robot_ur_sim")
 @dataclass
-class UrConfigx(RobotConfig):
-    use_gripper: bool = True
-    vacuum_gripper: bool = False  # Set to True if using a vacuum gripper
-    arm_joint_names: list[str] = field(default_factory=lambda: [
-        "shoulder_pan_joint",
-        "shoulder_lift_joint",
-        "elbow_joint",
-        "wrist_1_joint",
-        "wrist_2_joint",
-        "wrist_3_joint"
-    ])
-
-
-    # Joint degree offsets (in degrees)
-    target_degree_offsets: dict[str, float] = field(default_factory=lambda: {
-        "shoulder_pan_joint": 0.0,
-        "shoulder_lift_joint": -90.0,
-        "elbow_joint": -90.0,
-        "wrist_1_joint": 0.0,
-        "wrist_2_joint": 90.0,
-        "wrist_3_joint": 0.0,
-    })
-
-    # Joint scale factors (use -1.0 to invert direction)
-    joint_scale_factors: dict[str, float] = field(default_factory=lambda: {
-        "shoulder_pan_joint": 1.0,
-        "shoulder_lift_joint": 1.0,
-        "elbow_joint": 1.0,
-        "wrist_1_joint": 1.0,
-        "wrist_2_joint": 1.0,
-        "wrist_3_joint": 1.0,
-    })
-
-
-    gripper_joint_name: str = "gripper_joint"  # Update if you have a gripper joint name
-    cameras: dict[str, CameraConfig] = field(default_factory=dict)
+class UrSimConfig(ROS2Config):
+    """Configuration for the Universal Robots UR5 with ROS 2."""
+    ros2_interface: ROS2InterfaceConfig = field(
+        default_factory=lambda: ROS2InterfaceConfig(
+            arm_joint_names=[
+                "shoulder_pan_joint",
+                "shoulder_lift_joint",
+                "elbow_joint",
+                "wrist_1_joint",
+                "wrist_2_joint",
+                "wrist_3_joint",
+            ],
+            gripper_joint_name="gripper_joint",
+            base_link="base_link",
+            trajectory_publisher="xxx",
+            joint_trajectory_action="/joint_trajectory_controller/follow_joint_trajectory",
+            min_joint_positions=[-6.283, -2.356, -3.141, -6.283, -6.283, -6.283],
+            max_joint_positions=[6.283, 2.356, 3.141, 6.283, 6.283, 6.283],
+            gripper_open_position=0.0,
+            gripper_close_position=1.0,
+            target_degree_offsets={
+                "shoulder_pan_joint": 0.0,
+                "shoulder_lift_joint": -90.0,
+                "elbow_joint": -90.0,
+                "wrist_1_joint": 0.0,
+                "wrist_2_joint": 90.0,
+                "wrist_3_joint": 0.0,
+            },
+            joint_scale_factors={
+                "shoulder_pan_joint": 1.0,
+                "shoulder_lift_joint": 1.0,
+                "elbow_joint": 1.0,
+                "wrist_1_joint": 1.0,
+                "wrist_2_joint": 1.0,
+                "wrist_3_joint": 1.0,
+            },
+        )
+    )
 
