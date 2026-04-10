@@ -16,6 +16,7 @@ logger = logging.getLogger(__name__)
 
 
 class Ur(Robot):
+
     config_class = UrConfig
     name = "ur"
 
@@ -29,6 +30,8 @@ class Ur(Robot):
     def connect(self, calibrate: bool = True) -> None:
         if self.is_connected:
             raise DeviceAlreadyConnectedError(f"{self} is already connected.")
+        for cam in self.cameras.values():
+            cam.connect()
         self.ros2_interface.connect()
         self.is_connected = True
         #logger.info(f"{self} connected.")
@@ -192,3 +195,33 @@ class Ur(Robot):
         if hasattr(self.config.ros2_interface, "gripper_joint_name"):
             features[f"{self.config.ros2_interface.gripper_joint_name}.pos"] = float
         return features
+
+    @property
+    def action_features(self) -> dict[str, type]:
+        # Provide action features for each arm joint
+        features = {f"{joint}.pos": float for joint in self.config.ros2_interface.arm_joint_names}
+        # Optionally add gripper
+        if hasattr(self.config.ros2_interface, "gripper_joint_name"):
+            features[f"{self.config.ros2_interface.gripper_joint_name}.pos"] = float
+        return features
+
+    def calibrate(self) -> None:
+        # Implement calibration logic if needed
+        pass
+
+    def configure(self) -> None:
+        # Implement configuration logic if needed
+        pass
+
+    def is_calibrated(self) -> bool:
+        # Return True if robot is calibrated
+        return True
+
+
+    @property
+    def is_connected(self) -> bool:
+        return getattr(self, '_is_connected', False)
+
+    @is_connected.setter
+    def is_connected(self, value: bool) -> None:
+        self._is_connected = value

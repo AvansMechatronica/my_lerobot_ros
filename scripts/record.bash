@@ -7,8 +7,8 @@ lerobot-record \
     --dataset.streaming_encoding=true \
     --teleop.type=lerobot_teleoperator_teachbot \
     --dataset.vcodec=auto \
-    --dataset.push_to_hub=False 
-    --dataset.repo_id=./record-test \
+    --dataset.push_to_hub=False \
+    --dataset.repo_id=./record-test 
     # --dataset.vcodec=auto \
     #--dataset.encoder_threads=2
 
