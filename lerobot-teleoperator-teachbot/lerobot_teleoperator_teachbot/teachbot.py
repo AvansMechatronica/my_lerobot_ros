@@ -22,8 +22,6 @@ class Teachbot(Teleoperator):
 
         self._mutex = threading.Lock()
 
-    def _on_teleop_callback(self, pose, message):
-        pass
 
     @property
     def action_features(self) -> dict[str, type]:
@@ -53,9 +51,31 @@ class Teachbot(Teleoperator):
         pass
 
     def get_action(self) -> dict[str, Any]:
-        action = self.ros2_interface.joint_state
-        #print("Teachbot action:", action)
-        return action
+        # Get the raw joint state from the teachbot interface
+        joint_state = self.ros2_interface.joint_state
+        if not joint_state or "position" not in joint_state:
+            return {}
+
+        # Map teachbot joints to arm joints, apply offsets and scale
+        mapped_action = {}
+        arm_joint_names = getattr(self.config, "arm_joint_names", [])
+        # Try to get offsets and scales from config, fallback to 0/1
+        offsets = getattr(self.config, "target_degree_offsets", {})
+        scales = getattr(self.config, "joint_scale_factors", {})
+
+        for joint in arm_joint_names:
+            pos = joint_state["position"].get(joint)
+            if pos is None:
+                continue
+            offset = offsets.get(joint, 0.0)
+            scale = scales.get(joint, 1.0)
+            mapped_action[joint] = (pos + offset) * scale
+
+        # Optionally add gripper if present
+        if self.config.use_gripper and "gripper" in joint_state:
+            mapped_action["gripper"] = joint_state["gripper"]
+
+        return mapped_action
 
     def send_feedback(self, feedback: dict[str, float]) -> None:
         pass

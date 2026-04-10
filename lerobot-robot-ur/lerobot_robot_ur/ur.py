@@ -1,38 +1,18 @@
 import logging
 from typing import Any
-
-
-
+import time
 
 
 from lerobot.cameras import make_cameras_from_configs
 from lerobot.utils.errors import DeviceNotConnectedError, DeviceAlreadyConnectedError
 from lerobot.robots.robot import Robot
+from lerobot.robots.utils import ensure_safe_goal_position
 
 from .config_ur import UrConfig
+from .ros_interface import ROS2Interface
 
 
 logger = logging.getLogger(__name__)
-
-
-class Lite6Gripper:
-    def __init__(self):
-        pass
-    def open(self):
-        pass
-
-    def close(self):
-        pass
-
-    def stop(self):
-        pass
-    def set_gripper_state(self, gripper_state: float) -> None:
-        pass
-    def get_gripper_state(self) -> float:
-        return 0
-
-    def reset_gripper(self) -> None:
-        pass
 
 
 class Ur(Robot):
@@ -41,47 +21,106 @@ class Ur(Robot):
 
     def __init__(self, config: UrConfig):
         super().__init__(config)
+        self.config = config
+        self.ros2_interface = ROS2Interface(config=config)
         self.cameras = make_cameras_from_configs(config.cameras)
-        self._gripper = Lite6Gripper()
-        self._is_connected = False
-        
-
+        self.is_connected = False
 
     def connect(self, calibrate: bool = True) -> None:
-        pass
+        if self.is_connected:
+            raise DeviceAlreadyConnectedError(f"{self} is already connected.")
+        self.ros2_interface.connect()
+        self.is_connected = True
+        logger.info(f"{self} connected.")
 
-    @property
-    def _motors_ft(self) -> dict[str, type]:
-        # Example: Provide at least one action feature (customize as needed)
-        return {"joint_1": float}
-
-    @property
-    def action_features(self) -> dict[str, type]:
-        return self._motors_ft
 
     def send_action(self, action: dict[str, Any]) -> dict[str, Any]:
-        print("Robot action:", action)
+        """Command arm to move to a target joint configuration.
+
+        The relative action magnitude may be clipped depending on the configuration parameter
+        `max_relative_target`. In this case, the action sent differs from original action.
+        Thus, this function always returns the action actually sent.
+
+        Args:
+            action (dict[str, float]): The goal positions for the motors or pressed_keys dict.
+
+        Raises:
+            DeviceNotConnectedError: if robot is not connected.
+
+        Returns:
+            dict[str, float]: The action sent to the motors, potentially clipped.
+        """
+        if 1:
+            if not self.is_connected:
+                raise DeviceNotConnectedError(f"{self} is not connected.")
+
+            if self.config.max_relative_target is not None:
+                goal_present_pos = {}
+                joint_state = self.ros2_interface.joint_state
+                if joint_state is None:
+                    raise ValueError("Joint state is not available yet.")
+
+                for key, goal in action.items():
+                    present_pos = joint_state["position"].get(key.replace(".pos", ""), 0.0)
+                    goal_present_pos[key] = (goal, present_pos)
+                action = ensure_safe_goal_position(goal_present_pos, self.config.max_relative_target)
+
+            # Map teleop joint names to arm joint names and apply offsets/scale
+            arm_joint_names = self.config.ros2_interface.arm_joint_names
+            teachbot_joint_names = getattr(self.config.ros2_interface, "teachbot_joint_names", arm_joint_names)
+            offsets = getattr(self.config.ros2_interface, "target_degree_offsets", {})
+            scales = getattr(self.config.ros2_interface, "joint_scale_factors", {})
+
+            joint_positions = []
+            for arm_joint, teleop_joint in zip(arm_joint_names, teachbot_joint_names):
+                # Get teleop value
+                teleop_val = action.get(f"{teleop_joint}.pos", 0.0)
+                # Apply offset and scale
+                offset_deg = offsets.get(arm_joint, 0.0)
+                offset = offset_deg * 3.141592653589793 / 180.0  # convert degrees to radians
+                scale = scales.get(arm_joint, 1.0)
+                arm_val = (teleop_val + offset) * scale
+                joint_positions.append(arm_val)
+
+            self.ros2_interface.send_joint_position_command(joint_positions)
+
+            #gripper_pos = action["gripper.pos"]
+            #self.ros2_interface.send_gripper_command(gripper_pos)
+        return action
+
+
+    def get_observation(self) -> dict[str, Any]:
         if not self.is_connected:
             raise DeviceNotConnectedError(f"{self} is not connected.")
 
-        return action
+        obs_dict: dict[str, Any] = {}
+        joint_state = self.ros2_interface.joint_state
+        if joint_state is None or "position" not in joint_state:
+            logger.warning("Joint state 'position' not available yet.")
+        else:
+            obs_dict.update({f"{joint}.pos": pos for joint, pos in joint_state["position"].items()})
 
-    def get_observation(self) -> dict[str, Any]:
+        # Capture images from cameras
+        for cam_key, cam in self.cameras.items():
+            start = time.perf_counter()
+            try:
+                obs_dict[cam_key] = cam.async_read(timeout_ms=300)
+            except Exception as e:
+                logger.error(f"Failed to read camera {cam_key}: {e}")
+                obs_dict[cam_key] = None
+            dt_ms = (time.perf_counter() - start) * 1e3
+            logger.debug(f"{self} read {cam_key}: {dt_ms:.1f}ms")
 
-        obs_dict = {}
         return obs_dict
 
     def reset(self):
-        if self._gripper:
-            self._gripper.reset_gripper()
+        pass
 
     def disconnect(self) -> None:
         if not self.is_connected:
             return
 
-        if self._gripper is not None:
-            self._gripper.stop()
-            self._gripper = None
+        self.ros2_interface.disconnect()
 
         for cam in self.cameras.values():
             cam.disconnect()
@@ -94,12 +133,13 @@ class Ur(Robot):
 
     def configure(self) -> None:
         pass
+
     def is_calibrated(self) -> bool:
         return True#self.is_connected
 
     @property
     def is_connected(self) -> bool:
-        return True#self._is_connected
+        return self._is_connected
 
     @is_connected.setter
     def is_connected(self, value: bool) -> None:
@@ -114,7 +154,7 @@ class Ur(Robot):
 
     @property
     def observation_features(self) -> dict[str, Any]:
-        features = {**self._motors_ft, **self._cameras_ft}
+        features = {**self._cameras_ft}
         return features
 
     @property
@@ -132,3 +172,12 @@ class Ur(Robot):
     @config.setter
     def config(self, value):
         self._config = value
+
+    @property
+    def action_features(self) -> dict[str, type]:
+        # Provide action features for each arm joint
+        features = {f"{joint}.pos": float for joint in self.config.ros2_interface.arm_joint_names}
+        # Optionally add gripper
+        if hasattr(self.config.ros2_interface, "gripper_joint_name"):
+            features[f"{self.config.ros2_interface.gripper_joint_name}.pos"] = float
+        return features

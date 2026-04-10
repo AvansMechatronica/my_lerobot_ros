@@ -28,8 +28,8 @@ from sensor_msgs.msg import JointState
 from std_msgs.msg import Float64MultiArray
 from trajectory_msgs.msg import JointTrajectory, JointTrajectoryPoint
 
-from .config import ActionType, GripperActionType, ROS2InterfaceConfig
-from .moveit_servo import MoveIt2Servo
+from .config_ur import UrConfig
+
 
 logger = logging.getLogger(__name__)
 
@@ -52,56 +52,36 @@ class ROS2Interface:
     via the gripper_action_type configuration option.
     """
 
-    def __init__(self, config: ROS2InterfaceConfig, action_type: ActionType):
+    def __init__(self, config: UrConfig):
         self.config = config
-        self.action_type = action_type
         self.robot_node: Node | None = None
         self.pos_cmd_pub: Publisher | None = None
         self.traj_cmd_pub: Publisher | None = None
         self.gripper_action_client: ActionClient | None = None
         self.gripper_traj_pub: Publisher | None = None
         self.executor: Executor | None = None
-        self.moveit2_servo: MoveIt2Servo | None = None
         self.executor_thread: threading.Thread | None = None
         self.is_connected = False
-        self._last_joint_state: dict[str, dict[str, float]] | None = None
+        #self._last_joint_state: dict[str, dict[str, float]] | None = None
+        self._last_joint_state: dict[str, dict[str, float]] | None = {"position": {}, "velocity": {}}
 
     def connect(self) -> None:
         if not rclpy.ok():
             rclpy.init()
 
-        self.robot_node = Node("moveit2_interface_node", namespace=self.config.namespace)
-        if self.action_type == ActionType.JOINT_POSITION:
-            self.pos_cmd_pub = self.robot_node.create_publisher(
-                Float64MultiArray, "/position_controller/commands", 10
-            )
-        elif self.action_type == ActionType.JOINT_TRAJECTORY:
-            self.traj_cmd_pub = self.robot_node.create_publisher(
-                JointTrajectory, "/arm_controller/joint_trajectory", 10
-            )
-        elif self.action_type == ActionType.CARTESIAN_VELOCITY:
-            self.moveit2_servo = MoveIt2Servo(
-                node=self.robot_node,
-                frame_id=self.config.base_link,
-                callback_group=ReentrantCallbackGroup(),
-            )
+        self.robot_node = Node("ur_interface_node")
 
-        if self.config.gripper_action_type == GripperActionType.TRAJECTORY:
-            self.gripper_traj_pub = self.robot_node.create_publisher(
-                JointTrajectory, "/gripper_controller/joint_trajectory", 10
-            )
-        else:
-            self.gripper_action_client = ActionClient(
-                self.robot_node,
-                GripperCommand,
-                "/gripper_controller/gripper_cmd",
-                callback_group=ReentrantCallbackGroup(),
-            )
-            self._goal_msg = GripperCommand.Goal()
+        # Spin the node briefly to allow topic discovery
+        temp_executor = SingleThreadedExecutor()
+        temp_executor.add_node(self.robot_node)
+
+        self.traj_cmd_pub = self.robot_node.create_publisher(
+            JointTrajectory, self.config.ros2_interface.trajectory_publisher, 10
+        )
 
         self.joint_state_sub = self.robot_node.create_subscription(
             JointState,
-            "joint_states",
+            "/joint_states",
             self._joint_state_callback,
             10,
         )
@@ -126,7 +106,9 @@ class ROS2Interface:
             raise DeviceNotConnectedError("ROS2Interface is not connected. You need to call `connect()`.")
 
         if unnormalize:
-            if self.config.min_joint_positions is None or self.config.max_joint_positions is None:
+            min_joint_positions = self.config.ros2_interface.min_joint_positions
+            max_joint_positions = self.config.ros2_interface.max_joint_positions
+            if min_joint_positions is None or max_joint_positions is None:
                 raise ValueError(
                     "Joint position normalization requires min and max joint positions to be set."
                 )
@@ -134,91 +116,29 @@ class ROS2Interface:
                 min(max(pos, min_pos), max_pos)
                 for pos, min_pos, max_pos in zip(
                     joint_positions,
-                    self.config.min_joint_positions,
-                    self.config.max_joint_positions,
+                    min_joint_positions,
+                    max_joint_positions,
                     strict=True,
                 )
             ]
 
-        if len(joint_positions) != len(self.config.arm_joint_names):
+        arm_joint_names = self.config.ros2_interface.arm_joint_names
+        if len(joint_positions) != len(arm_joint_names):
             raise ValueError(
-                f"Expected {len(self.config.arm_joint_names)} joint positions, but got {len(joint_positions)}."
+                f"Expected {len(arm_joint_names)} joint positions, but got {len(joint_positions)}."
             )
 
-        if self.action_type == ActionType.JOINT_TRAJECTORY:
-            if self.traj_cmd_pub is None:
-                raise DeviceNotConnectedError("Trajectory command publisher is not initialized.")
-            msg = JointTrajectory()
-            msg.joint_names = self.config.arm_joint_names
-            point = JointTrajectoryPoint()
-            point.positions = joint_positions
-            msg.points = [point]
-            self.traj_cmd_pub.publish(msg)
-        else:
-            if self.pos_cmd_pub is None:
-                raise DeviceNotConnectedError("Position command publisher is not initialized.")
-            msg = Float64MultiArray()
-            msg.data = joint_positions
-            self.pos_cmd_pub.publish(msg)
+        if self.traj_cmd_pub is None:
+            raise DeviceNotConnectedError("Trajectory command publisher is not initialized.")
+        msg = JointTrajectory()
+        arm_joint_names = self.config.ros2_interface.arm_joint_names
+        msg.joint_names = arm_joint_names
+        point = JointTrajectoryPoint()
+        point.positions = joint_positions
+        msg.points = [point]
+        print(f"Publishing joint positions: {joint_positions}")
+        #self.traj_cmd_pub.publish(msg)
 
-    def servo(self, linear, angular, normalize: bool = True) -> None:
-        if not self.moveit2_servo:
-            raise DeviceNotConnectedError("ROS2Interface is not connected. You need to call `connect()`.")
-
-        if normalize:
-            linear = [v * self.config.max_linear_velocity for v in linear]
-            angular = [v * self.config.max_angular_velocity for v in angular]
-        self.moveit2_servo.servo(linear=linear, angular=angular)
-
-    def send_gripper_command(self, position: float, unnormalize: bool = True) -> bool:
-        """
-        Send a command to the gripper to move to a specific position.
-        Args:
-            position (float): The target position for the gripper (0=open, 1=closed).
-        Returns:
-            bool: True if the command was sent successfully, False otherwise.
-        """
-        if not self.robot_node:
-            raise DeviceNotConnectedError("ROS2Interface is not connected. You need to call `connect()`.")
-
-        if unnormalize:
-            # Map normalized position (0=open, 1=closed) to actual gripper joint position
-            open_pos = self.config.gripper_open_position
-            closed_pos = self.config.gripper_close_position
-            gripper_goal = open_pos + position * (closed_pos - open_pos)
-        else:
-            gripper_goal = position
-
-        if self.config.gripper_action_type == GripperActionType.TRAJECTORY:
-            if self.gripper_traj_pub is None:
-                raise DeviceNotConnectedError("Gripper command publisher is not initialized.")
-            msg = JointTrajectory()
-            msg.joint_names = [self.config.gripper_joint_name]
-            point = JointTrajectoryPoint()
-            point.positions = [float(gripper_goal)]
-            msg.points = [point]
-            self.gripper_traj_pub.publish(msg)
-            return True
-        else:
-            if not self.gripper_action_client:
-                raise DeviceNotConnectedError("Gripper action client is not initialized.")
-
-            if not self.gripper_action_client.wait_for_server(timeout_sec=1.0):
-                logger.error("Gripper action server not available")
-                return False
-
-            self._goal_msg.command.position = float(gripper_goal)
-            if not (resp := self.gripper_action_client.send_goal(self._goal_msg)):
-                logger.error("Failed to send gripper command")
-                return False
-            result = resp.result  # type: ignore  # ROS2 types available at runtime
-            if result.reached_goal:
-                return True
-            logger.error(
-                f"Gripper did not reach goal. stalled: {result.stalled}, "
-                f"effort: {result.effort}, position: {result.position}"
-            )
-            return False
 
     @property
     def joint_state(self) -> dict[str, dict[str, float]] | None:
@@ -226,28 +146,21 @@ class ROS2Interface:
         return self._last_joint_state
 
     def _joint_state_callback(self, msg: "JointState") -> None:
+        #print(f"Received joint state: {msg}")
         self._last_joint_state = self._last_joint_state or {}
         positions = {}
         velocities = {}
         name_to_index = {name: i for i, name in enumerate(msg.name)}
-        for joint_name in self.config.arm_joint_names:
+        for joint_name in self.config.ros2_interface.arm_joint_names:
             idx = name_to_index.get(joint_name)
             if idx is None:
                 raise ValueError(f"Joint '{joint_name}' not found in joint state.")
             positions[joint_name] = msg.position[idx]
-            velocities[joint_name] = msg.velocity[idx]
-
-        if self.config.gripper_joint_name:
-            idx = name_to_index.get(self.config.gripper_joint_name)
-            if idx is None:
-                raise ValueError(
-                    f"Gripper joint '{self.config.gripper_joint_name}' not found in joint state."
-                )
-            positions[self.config.gripper_joint_name] = msg.position[idx]
-            velocities[self.config.gripper_joint_name] = msg.velocity[idx]
+            velocities[joint_name] = 0.0 #msg.velocity[idx]
 
         self._last_joint_state["position"] = positions
         self._last_joint_state["velocity"] = velocities
+        #print(f"Updated joint state: {self._last_joint_state}")
 
     def disconnect(self):
         if self.joint_state_sub:
@@ -259,17 +172,12 @@ class ROS2Interface:
         if self.traj_cmd_pub:
             self.traj_cmd_pub.destroy()
             self.traj_cmd_pub = None
-        if self.gripper_action_client:
-            self.gripper_action_client.destroy()
-            self.gripper_action_client = None
         if self.gripper_traj_pub:
             self.gripper_traj_pub.destroy()
             self.gripper_traj_pub = None
         if self.robot_node:
             self.robot_node.destroy_node()
             self.robot_node = None
-        if self.moveit2_servo:
-            self.moveit2_servo = None
 
         if self.executor:
             self.executor.shutdown()

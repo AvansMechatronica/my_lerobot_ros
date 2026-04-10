@@ -76,15 +76,15 @@ class ROS2Interface:
 
         self.robot_node = Node("teachbot_teleop_interface_node")
 
-        # Spin the node briefly to allow topic discovery
-        temp_executor = SingleThreadedExecutor()
-        temp_executor.add_node(self.robot_node)
-        start_time = time.time()
-        while time.time() - start_time < 1.0:
-            temp_executor.spin_once(timeout_sec=0.1)
-        temp_executor.remove_node(self.robot_node)
-
         if 0: # Dit werkt niet betrowbaar, omdat de topics soms vertraagd verschijnen. We checken in de joint state callback zelf of de benodigde joints er zijn.
+            # Spin the node briefly to allow topic discovery
+            temp_executor = SingleThreadedExecutor()
+            temp_executor.add_node(self.robot_node)
+            start_time = time.time()
+            while time.time() - start_time < 1.0:
+                temp_executor.spin_once(timeout_sec=0.1)
+            temp_executor.remove_node(self.robot_node)
+
             topics = self.robot_node.get_topic_names_and_types()
             #print("Available topics:", topics)
             has_joint_states = any(topic == "/teachbot/joint_states" for topic, _ in topics)
@@ -159,7 +159,21 @@ class ROS2Interface:
                 else:
                     self._last_joint_state["gripper"] = self.teachbot_pot_precent
         else:
-            self._last_joint_state = {}
+            self._last_joint_state = self._last_joint_state or {}
+            positions = {}
+            name_to_index = {name: i for i, name in enumerate(msg.name)}
+            for joint_name in self.config.arm_joint_names:
+                # Try direct match
+                idx = name_to_index.get(joint_name)
+                # If not found, try with 'teachbot/' prefix
+                if idx is None:
+                    prefixed_name = f"teachbot/{joint_name}"
+                    idx = name_to_index.get(prefixed_name)
+                if idx is None:
+                    raise ValueError(f"Joint '{joint_name}' (or 'teachbot/{joint_name}') not found in joint state.")
+                positions[joint_name] = 0.0
+
+            self._last_joint_state["position"] = positions
 
 
     def _teachbot_state_callback(self, msg: TeachbotState):
