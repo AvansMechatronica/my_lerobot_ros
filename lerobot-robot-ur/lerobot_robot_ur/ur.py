@@ -54,48 +54,45 @@ class Ur(Robot):
             dict[str, float]: The action sent to the motors, potentially clipped.
         """
         #print(f"Received action: {action}" )
-        if 1:
-            if not self.is_connected:
-                raise DeviceNotConnectedError(f"{self} is not connected.")
+        if not self.is_connected:
+            raise DeviceNotConnectedError(f"{self} is not connected.")
 
-            if self.config.max_relative_target is not None:
-                goal_present_pos = {}
-                joint_state = self.ros2_interface.joint_state
-                if joint_state is None:
-                    raise ValueError("Joint state is not available yet.")
+        # Use lookup_joint_names_from_telop for mapping
+        lookup = getattr(self.config.ros2_interface, "lookup_joint_names_from_telop", {})
+        offsets = getattr(self.config.ros2_interface, "target_degree_offsets", {})
+        scales = getattr(self.config.ros2_interface, "joint_scale_factors", {})
+        arm_joint_names = self.config.ros2_interface.arm_joint_names
 
-                for key, goal in action.items():
-                    present_pos = joint_state["position"].get(key.replace(".pos", ""), 0.0)
-                    goal_present_pos[key] = (goal, present_pos)
-                action = ensure_safe_goal_position(goal_present_pos, self.config.max_relative_target)
+        joint_positions = []
+        for arm_joint in arm_joint_names:
+            # Find the teleop joint name that maps to this arm joint
+            teleop_joint = None
+            for k, v in lookup.items():
+                if v == arm_joint:
+                    teleop_joint = k
+                    break
+            # Try both .pos and plain key
+            teleop_val = action.get(f"{teleop_joint}.pos", action.get(teleop_joint, 0.0)) if teleop_joint else 0.0
+            offset_deg = offsets.get(arm_joint, 0.0)
+            offset = offset_deg * 3.141592653589793 / 180.0  # convert degrees to radians
+            scale = scales.get(arm_joint, 1.0)
+            arm_val = (teleop_val + offset) * scale
+            joint_positions.append(arm_val)
+        #print(f"Mapped joint positions: {joint_positions}")
+        self.ros2_interface.send_joint_position_command(joint_positions)
 
+        #gripper_pos = action["gripper.pos"]
+        #self.ros2_interface.send_gripper_command(gripper_pos)
+        # Ensure all required action keys are present for dataset writing
+        required_keys = [f"{joint}.pos" for joint in self.config.ros2_interface.arm_joint_names]
+        # Optionally add gripper
+        if hasattr(self.config.ros2_interface, "gripper_joint_name"):
+            required_keys.append(f"{self.config.ros2_interface.gripper_joint_name}.pos")
 
-            # Use lookup_joint_names_from_telop for mapping
-            lookup = getattr(self.config.ros2_interface, "lookup_joint_names_from_telop", {})
-            offsets = getattr(self.config.ros2_interface, "target_degree_offsets", {})
-            scales = getattr(self.config.ros2_interface, "joint_scale_factors", {})
-            arm_joint_names = self.config.ros2_interface.arm_joint_names
+        for key in required_keys:
+            if key not in action:
+                action[key] = 0.0
 
-            joint_positions = []
-            for arm_joint in arm_joint_names:
-                # Find the teleop joint name that maps to this arm joint
-                teleop_joint = None
-                for k, v in lookup.items():
-                    if v == arm_joint:
-                        teleop_joint = k
-                        break
-                # Try both .pos and plain key
-                teleop_val = action.get(f"{teleop_joint}.pos", action.get(teleop_joint, 0.0)) if teleop_joint else 0.0
-                offset_deg = offsets.get(arm_joint, 0.0)
-                offset = offset_deg * 3.141592653589793 / 180.0  # convert degrees to radians
-                scale = scales.get(arm_joint, 1.0)
-                arm_val = (teleop_val + offset) * scale
-                joint_positions.append(arm_val)
-            #print(f"Mapped joint positions: {joint_positions}")
-            self.ros2_interface.send_joint_position_command(joint_positions)
-
-            #gripper_pos = action["gripper.pos"]
-            #self.ros2_interface.send_gripper_command(gripper_pos)
         return action
 
 
