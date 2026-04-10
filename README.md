@@ -109,6 +109,20 @@ lerobot-record \
     --robot.ros2_interface.sim=true
 ```
 
+## Replaying
+Om een opgenomen dataset af te spelen, gebruikt u het volgende commando:
+```bash
+DATASET_ROOT=$HOME/lerobot_recordings
+DATASET_REPO_ID=./record-test
+
+
+lerobot-replay \
+    --robot.type=lerobot_robot_ur \
+    --dataset.repo_id=$DATASET_REPO_ID \
+    --dataset.root=$DATASET_ROOT \
+    --dataset.episode=0
+```
+
 ## LeRobot Website
 Voor meer informatie over het LeRobot-framework, bezoek de [LeRobot-website](https://huggingface.co/docs/lerobot/index).
 
