@@ -85,10 +85,11 @@ class ROS2Interface:
                 JointTrajectory, self.config.ros2_interface.trajectory_publisher, 10
             )
         elif self.config.ros2_interface.action_type == ActionType.JOINT_TRAJECTORY:
+            controller_name = self.config.ros2_interface.joint_trajectory_controller_sim if self.config.ros2_interface.sim else self.config.ros2_interface.joint_trajectory_controller
             self._joint_trajectory_client = ActionClient(
                 self.robot_node,
                 FollowJointTrajectory,
-                self.config.ros2_interface.joint_trajectory_action,
+                controller_name,
             )
             if not self._joint_trajectory_client.wait_for_server(timeout_sec=5.0):
                 raise ConnectionError("Joint trajectory action server is not available.") 

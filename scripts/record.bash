@@ -20,7 +20,8 @@ lerobot-record \
     --dataset.repo_id=$DATASET_REPO_ID \
     --dataset.root=$DATASET_ROOT \
     --display_data=false \
-    --dataset.encoder_threads=4
+    --dataset.encoder_threads=4 \
+    --robot.ros2_interface.sim=true
     # --dataset.vcodec=auto \
     #--dataset.encoder_threads=2
     # --dataset.vcodec=auto \

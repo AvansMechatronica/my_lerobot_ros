@@ -1,19 +1,6 @@
 # LeRobot ROS
 
-Deze repository biedt een generieke ROS 2-interface voor het [LeRobot](https://github.com/huggingface/lerobot)-framework. Het fungeert als een lichtgewicht wrapper om elke [ros2_control](https://control.ros.org/rolling/index.html)- of [MoveIt](https://moveit.ai/)-compatibele robotarm te verbinden met het LeRobot-ecosysteem.
-
-
-
-**Ondersteunde besturingsmodi:**
-
-- Gewrichtspositie met ros2_control
-  - Met [joint_trajectory_controller](https://control.ros.org/rolling/doc/ros2_controllers/joint_trajectory_controller/doc/userdoc.html)
-  - Met [position_controllers](https://control.ros.org/rolling/doc/ros2_controllers/position_controllers/doc/userdoc.html)
-- Eindeffector-snelheid met MoveIt 2
-  - Met [MoveIt Servo](https://moveit.picknik.ai/main/doc/examples/realtime_servo/realtime_servo_tutorial.html)
-- Grijper-besturing met ros2_control
-  - Met [joint_trajectory_controller](https://control.ros.org/rolling/doc/ros2_controllers/joint_trajectory_controller/doc/userdoc.html)
-  - Met [Gripper Action Controller](https://control.ros.org/jazzy/doc/ros2_controllers/gripper_controllers/doc/userdoc.html)
+Deze repository biedt een ROS2-integratie voor het LeRobot-framework, gericht op de Universal Robots (UR) robotarmen en de Teachbot. Hiermee kunnen gebruikers hun UR-robots teleopereren en datasets opnemen met behulp van ROS2-tools en -controllers.
 
 
 ## Vereisten
@@ -29,7 +16,7 @@ Zorg ervoor dat het volgende is geïnstalleerd voordat u begint:
 
 ## Snelstart
 
-Stel eerst LeRobot en lerobot-ros in een virtuele omgeving in. Let op: de Python-versie van de virtualenv moet compatibel zijn met uw ROS-versie. Voor ROS 2 Jazzy gebruiken we Python 3.12.
+Stel eerst LeRobot en lerobot-ros in een virtuele omgeving in. Let op: de Python-versie van de virtual environment moet compatibel zijn met uw ROS-versie. Voor ROS 2 Jazzy gebruiken we Python 3.12.
 
 ```bash
 # Controleer dat Python 3.12 beschikbaar is voor ROS 2 Jazzy
@@ -58,20 +45,21 @@ pip install -e lerobot-robot-ur
 ```
 
 
-Ten slotte, om alle programma's uit te voeren:
+Ten slotte, om een teleoperatie uit te voeren:
 
 ```bash
-# In terminal 1, start de Gazebo-simulatie
+# In terminal 1, start de Gazebo-simulatie van de UR-robot
+ros2 launch my_ur_bringup simulation.launch.py
 
-
-# In terminal 2, laad de ros2-controllers en start MoveIt
-
+# In terminal 2, Laad de techbot ROS-software en start de ROS-node(simulatie)
+ros2 launch teachbot_ros sim_teachbot_rviz.launch.py
 
 # In terminal 3, start lerobot met de ROS-versie
 lerobot-teleoperate \
   --robot.type=lerobot_robot_ur \
   --teleop.type=lerobot_teleoperator_teachbot \
-  --fps=60
+  --fps=15
+  --robot.ros2_interface.sim=true
 
 ```
 Zodra teleoperatie werkt, kunt u alle standaard LeRobot-functies zoals gewoonlijk gebruiken.
@@ -85,7 +73,8 @@ source .venv/bin/activate
 ```
 
 ### Automatiseren van environment activatie
-Om het activeren van de virtuele omgeving te automatiseren bij het openen van een nieuwe terminal, kunt u de volgende regel toevoegen aan uw shell-configuratiebestand (~/.bashrc`):
+Niet aanbevolen kan conflicteren met andere ROS-omgevingen, maar als u wilt dat de lerobot virtuele omgeving automatisch wordt geactiveerd bij het openen van een nieuwe terminal, kunt u de volgende regel toevoegen aan uw shell-configuratiebestand (`~/.bashrc`):
+
 
 ```bash
 # Automatisch activeren van de lerobot virtuele omgeving
@@ -95,111 +84,40 @@ fi
 ```
 Voeg deze regel toe aan het einde van uw `~/.bashrc`-bestand en sla het op. De volgende keer dat u een nieuwe terminal opent, zal de lerobot virtuele omgeving automatisch worden geactiveerd.
 
+## Recording
 
+Om een dataset op te nemen, gebruikt u het volgende commando:
 
+```bash
+DATASET_ROOT=$HOME/lerobot_recordings
+DATASET_REPO_ID=./record-test
 
-
-
-
-
-
-# Hieronder nog aanpassen
-
-
-
-
-## Handleiding voor Robot-integratie
-
-In dit gedeelte wordt beschreven hoe andere ROS-gebaseerde robots kunnen worden geïntegreerd met Lerobot.
-
-### Besturingsmodi voor de Arm
-
-Momenteel ondersteunt de repo de volgende besturingsmodi voor de arm:
-
-**Optie 1: Gewrichtspositiebesturing**
-
-Deze optie gebruikt [position_controllers](https://control.ros.org/rolling/doc/ros2_controllers/position_controllers/doc/userdoc.html) in `ros2_control`. De robot moet beschikken over:
-
-- `position_controllers/JointGroupPositionController` voor de robotarmgewrichten
-- `joint_state_broadcaster/JointStateBroadcaster` voor terugkoppeling van de gewrichtstoestand
-
-Deze optie wordt ingeschakeld door `action_type` in te stellen op `ActionType.JOINT_POSITION` in de robotconfiguratie.
-
-**Optie 2: Gewrichtsbaanbesturing**
-
-Deze optie gebruikt [joint_trajectory_controller](https://control.ros.org/rolling/doc/ros2_controllers/joint_trajectory_controller/doc/userdoc.html) in `ros2_control`. De robot moet beschikken over:
-
-- `joint_trajectory_controller/JointTrajectoryController` voor de robotarmgewrichten
-- `joint_state_broadcaster/JointStateBroadcaster` voor terugkoppeling van de gewrichtstoestand
-
-Deze optie wordt ingeschakeld door `action_type` in te stellen op `ActionType.JOINT_TRAJECTORY` in de robotconfiguratie.
-
-**Optie 3: Eindeffector-besturing**
-
-Deze optie gebruikt [MoveIt Servo](https://moveit.picknik.ai/main/doc/examples/realtime_servo/realtime_servo_tutorial.html) in MoveIt. De robot moet beschikken over:
-
-- Het `moveit_servo`-knooppunt voor realtime eindeffector-besturing
-- `joint_trajectory_controller/JointTrajectoryController` voor robotarmbesturing
-- `joint_state_broadcaster/JointStateBroadcaster` voor terugkoppeling van de gewrichtstoestand
-
-Deze optie wordt ingeschakeld door `action_type` in te stellen op `ActionType.CARTESIAN_VELOCITY` in de robotconfiguratie. Zie: [ar4_ros_driver](https://github.com/ycheng517/ar4_ros_driver) voor een voorbeeld van het gebruik van `moveit_servo`.
-
-### Grijper-besturingsmodi
-
-De repo ondersteunt twee grijper-besturingsmodi die kunnen worden geconfigureerd via de instelling `gripper_action_type`:
-
-**Baanbesturing (`GripperActionType.TRAJECTORY`)**
-
-- Gebruikt `JointTrajectoryController` van ros2_control
-- Publiceert `JointTrajectory`-berichten naar `/gripper_controller/joint_trajectory`
-
-**Actiebesturing (`GripperActionType.ACTION`)**
-
-- Gebruikt `GripperActionController` van ros2_control
-- Stuurt actiedoelen naar `/gripper_controller/gripper_cmd`
-- Geeft terugkoppeling of de grijper de doelpositie heeft bereikt
-
-### Codewijzigingen in Lerobot-ros
-
-Breid de klasse `ROS2Robot` uit in [robot.py](./lerobot_robot_ros/lerobot_robot_ros/robot.py).
-Deze klasse kan een eenvoudige doorvoer zijn. Ze is alleen nodig om te voldoen aan de vereisten voor apparaatdetectie van lerobot.
-
-```python
-class MyRobot(ROS2Robot):
-  pass
+lerobot-record \
+    --robot.type=lerobot_robot_ur \
+    --robot.cameras="{ front: {type: opencv, index_or_path: /dev/video0, width: 640, height: 480, fps: 30}}" \
+    --dataset.num_episodes=5 \
+    --dataset.episode_time_s=15 \
+    --dataset.single_task="Grab the black cube" \
+    --dataset.streaming_encoding=true \
+    --teleop.type=lerobot_teleoperator_teachbot \
+    --dataset.vcodec=h264 \
+    --dataset.push_to_hub=False \
+    --dataset.repo_id=$DATASET_REPO_ID \
+    --dataset.root=$DATASET_ROOT \
+    --display_data=false \
+    --dataset.encoder_threads=4 \
+    --robot.ros2_interface.sim=true
 ```
 
-Maak vervolgens een configuratieklasse voor uw robot door `ROS2Config` te subclassen in [config.py](./lerobot_robot_ros/lerobot_robot_ros/config.py).
-De naam van deze klasse moet gelijk zijn aan de naam van uw robotklasse, gevolgd door `Config`.
-U kunt gewrichtsnamen, grijperconfiguraties en andere parameters naar wens overschrijven.
-Een voorbeeldconfiguratieklasse voor gewrichtssnelheidsbesturing kan er als volgt uitzien:
+## LeRobot Website
+Voor meer informatie over het LeRobot-framework, bezoek de [LeRobot-website](https://huggingface.co/docs/lerobot/index).
 
-```python
-from dataclasses import dataclass, field
-from lerobot.common.robots.config import RobotConfig
-from lerobot.common.robots.config import ROS2Config, ROS2InterfaceConfig
 
-@RobotConfig.register_subclass("my_ros2_robot")
-@dataclass
-class MyRobotConfig(ROS2Config):
-    action_type: ActionType = ActionType.JOINT_POSITION
+## Referenties
 
-    ros2_interface: ROS2InterfaceConfig = field(
-        default_factory=lambda: ROS2InterfaceConfig(
-            base_link="base_link",
-            arm_joint_names=[
-                "joint_1",
-                "joint_2",
-                "joint_3",
-                "joint_4",
-                "joint_5",
-                "joint_6",
-            ],
-            gripper_joint_name="gripper_joint",
-            gripper_open_position=0.0,
-            gripper_close_position=1.0,
-            max_linear_velocity=0.05,  # m/s
-            max_angular_velocity=0.25,  # rad/s
-        )
-    )
-```
+- Gewrichtspositie met ros2_control
+  - Met [joint_trajectory_controller](https://control.ros.org/rolling/doc/ros2_controllers/joint_trajectory_controller/doc/userdoc.html)
+  - Met [position_controllers](https://control.ros.org/rolling/doc/ros2_controllers/position_controllers/doc/userdoc.html)
+- Grijper-besturing met ros2_control
+  - Met [joint_trajectory_controller](https://control.ros.org/rolling/doc/ros2_controllers/joint_trajectory_controller/doc/userdoc.html)
+  - Met [Gripper Action Controller](https://control.ros.org/jazzy/doc/ros2_controllers/gripper_controllers/doc/userdoc.html)
