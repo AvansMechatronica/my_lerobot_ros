@@ -9,7 +9,7 @@ from lerobot.robots.robot import Robot
 from lerobot.robots.utils import ensure_safe_goal_position
 
 from .config_ur import UrConfig
-from .ros_interface import ROS2Interface
+from .ros_interface_ur import ROS2Interface
 
 
 logger = logging.getLogger(__name__)
@@ -31,7 +31,7 @@ class Ur(Robot):
             raise DeviceAlreadyConnectedError(f"{self} is already connected.")
         self.ros2_interface.connect()
         self.is_connected = True
-        logger.info(f"{self} connected.")
+        #logger.info(f"{self} connected.")
 
 
     def send_action(self, action: dict[str, Any]) -> dict[str, Any]:
@@ -50,6 +50,7 @@ class Ur(Robot):
         Returns:
             dict[str, float]: The action sent to the motors, potentially clipped.
         """
+        #print(f"Received action: {action}" )
         if 1:
             if not self.is_connected:
                 raise DeviceNotConnectedError(f"{self} is not connected.")
@@ -65,23 +66,29 @@ class Ur(Robot):
                     goal_present_pos[key] = (goal, present_pos)
                 action = ensure_safe_goal_position(goal_present_pos, self.config.max_relative_target)
 
-            # Map teleop joint names to arm joint names and apply offsets/scale
-            arm_joint_names = self.config.ros2_interface.arm_joint_names
-            teachbot_joint_names = getattr(self.config.ros2_interface, "teachbot_joint_names", arm_joint_names)
+
+            # Use lookup_joint_names_from_telop for mapping
+            lookup = getattr(self.config.ros2_interface, "lookup_joint_names_from_telop", {})
             offsets = getattr(self.config.ros2_interface, "target_degree_offsets", {})
             scales = getattr(self.config.ros2_interface, "joint_scale_factors", {})
+            arm_joint_names = self.config.ros2_interface.arm_joint_names
 
             joint_positions = []
-            for arm_joint, teleop_joint in zip(arm_joint_names, teachbot_joint_names):
-                # Get teleop value
-                teleop_val = action.get(f"{teleop_joint}.pos", 0.0)
-                # Apply offset and scale
+            for arm_joint in arm_joint_names:
+                # Find the teleop joint name that maps to this arm joint
+                teleop_joint = None
+                for k, v in lookup.items():
+                    if v == arm_joint:
+                        teleop_joint = k
+                        break
+                # Try both .pos and plain key
+                teleop_val = action.get(f"{teleop_joint}.pos", action.get(teleop_joint, 0.0)) if teleop_joint else 0.0
                 offset_deg = offsets.get(arm_joint, 0.0)
                 offset = offset_deg * 3.141592653589793 / 180.0  # convert degrees to radians
                 scale = scales.get(arm_joint, 1.0)
                 arm_val = (teleop_val + offset) * scale
                 joint_positions.append(arm_val)
-
+            #print(f"Mapped joint positions: {joint_positions}")
             self.ros2_interface.send_joint_position_command(joint_positions)
 
             #gripper_pos = action["gripper.pos"]
@@ -122,8 +129,12 @@ class Ur(Robot):
 
         self.ros2_interface.disconnect()
 
+        from lerobot.utils.errors import DeviceNotConnectedError
         for cam in self.cameras.values():
-            cam.disconnect()
+            try:
+                cam.disconnect()
+            except DeviceNotConnectedError:
+                logger.warning(f"Tried to disconnect {cam}, but it was not connected.")
 
         self.is_connected = False
         logger.info(f"{self} disconnected.")

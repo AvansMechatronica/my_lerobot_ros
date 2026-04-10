@@ -3,6 +3,12 @@ from dataclasses import dataclass, field
 from lerobot.cameras import CameraConfig
 
 from lerobot.robots.config import RobotConfig
+from enum import Enum
+
+class ActionType(Enum):
+    CARTESIAN_VELOCITY = "cartesian_velocity"
+    JOINT_POSITION = "joint_position"
+    JOINT_TRAJECTORY = "joint_trajectory"
 
 @dataclass
 class ROS2InterfaceConfig:
@@ -52,7 +58,9 @@ class ROS2InterfaceConfig:
         "wrist_2_joint": "wrist_2_joint",
         "wrist_3_joint": "wrist_3_joint",
     })
+    action_type: ActionType = ActionType.JOINT_TRAJECTORY
     trajectory_publisher: str = "/arm_controller/joint_trajectory"
+    joint_trajectory_action: str = "/joint_trajectory_controller/follow_joint_trajectory"
 
 @dataclass
 class ROS2Config(RobotConfig):

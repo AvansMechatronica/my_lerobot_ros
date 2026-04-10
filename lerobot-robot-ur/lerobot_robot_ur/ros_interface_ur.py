@@ -27,8 +27,9 @@ from rclpy.publisher import Publisher
 from sensor_msgs.msg import JointState
 from std_msgs.msg import Float64MultiArray
 from trajectory_msgs.msg import JointTrajectory, JointTrajectoryPoint
+from control_msgs.action import FollowJointTrajectory
 
-from .config_ur import UrConfig
+from .config_ur import UrConfig, ActionType
 
 
 logger = logging.getLogger(__name__)
@@ -57,6 +58,7 @@ class ROS2Interface:
         self.robot_node: Node | None = None
         self.pos_cmd_pub: Publisher | None = None
         self.traj_cmd_pub: Publisher | None = None
+        self._joint_trajectory_client: ActionClient | None = None
         self.gripper_action_client: ActionClient | None = None
         self.gripper_traj_pub: Publisher | None = None
         self.executor: Executor | None = None
@@ -64,6 +66,9 @@ class ROS2Interface:
         self.is_connected = False
         #self._last_joint_state: dict[str, dict[str, float]] | None = None
         self._last_joint_state: dict[str, dict[str, float]] | None = {"position": {}, "velocity": {}}
+        self.is_executing = False
+        self._send_goal_future: Any = None
+        self._current_goal_handle = None
 
     def connect(self) -> None:
         if not rclpy.ok():
@@ -75,9 +80,20 @@ class ROS2Interface:
         temp_executor = SingleThreadedExecutor()
         temp_executor.add_node(self.robot_node)
 
-        self.traj_cmd_pub = self.robot_node.create_publisher(
-            JointTrajectory, self.config.ros2_interface.trajectory_publisher, 10
-        )
+        if self.config.ros2_interface.action_type == ActionType.JOINT_POSITION:
+            self.traj_cmd_pub = self.robot_node.create_publisher(
+                JointTrajectory, self.config.ros2_interface.trajectory_publisher, 10
+            )
+        elif self.config.ros2_interface.action_type == ActionType.JOINT_TRAJECTORY:
+            self._joint_trajectory_client = ActionClient(
+                self.robot_node,
+                FollowJointTrajectory,
+                self.config.ros2_interface.joint_trajectory_action,
+            )
+            if not self._joint_trajectory_client.wait_for_server(timeout_sec=5.0):
+                raise ConnectionError("Joint trajectory action server is not available.") 
+        else:
+            raise ValueError(f"Unsupported action type: {self.config.ros2_interface.action_type}")       
 
         self.joint_state_sub = self.robot_node.create_subscription(
             JointState,
@@ -85,7 +101,8 @@ class ROS2Interface:
             self._joint_state_callback,
             10,
         )
-
+ 
+        
         # Create and start the executor in a separate thread
         self.executor = SingleThreadedExecutor()
         self.executor.add_node(self.robot_node)
@@ -94,6 +111,55 @@ class ROS2Interface:
         time.sleep(3)  # Give some time to connect to services and receive messages
 
         self.is_connected = True
+
+    def goal_response_callback(self, future):
+        """Handle goal response."""
+        try:
+            goal_handle = future.result()
+            if not goal_handle.accepted:
+                print('Goal rejected by action server')
+                print('Possible reasons: controller not ready, invalid trajectory, or joints mismatch')
+                print('Check that the controller is running: ros2 control list_controllers')
+                self.is_executing = False
+                return
+            
+            #print('Goal accepted')
+        except Exception as e:
+            print(f'Exception in goal response: {str(e)}')
+            self.is_executing = False
+            return
+        
+        self._get_result_future = goal_handle.get_result_async()
+        self._get_result_future.add_done_callback(self.get_result_callback)
+
+    def get_result_callback(self, future):
+        """Handle result."""
+        from control_msgs.action import FollowJointTrajectory as FJT
+        result = future.result().result
+        
+        # Map error codes to messages
+        error_messages = {
+            FJT.Result.SUCCESSFUL: 'SUCCESSFUL',
+            FJT.Result.INVALID_GOAL: 'INVALID_GOAL',
+            FJT.Result.INVALID_JOINTS: 'INVALID_JOINTS',
+            FJT.Result.OLD_HEADER_TIMESTAMP: 'OLD_HEADER_TIMESTAMP',
+            FJT.Result.PATH_TOLERANCE_VIOLATED: 'PATH_TOLERANCE_VIOLATED',
+            FJT.Result.GOAL_TOLERANCE_VIOLATED: 'GOAL_TOLERANCE_VIOLATED'
+        }
+        
+        error_msg = error_messages.get(result.error_code, f'UNKNOWN({result.error_code})')
+        
+        if result.error_code == FJT.Result.SUCCESSFUL:
+            #print(f'Result: {error_msg}')
+            pass
+        else:
+            print(f'Result: {error_msg} (code: {result.error_code})')
+        
+        self.is_executing = False
+
+    def feedback_callback(self, feedback_msg):
+        """Handle feedback (optional)."""
+        pass
 
     def send_joint_position_command(self, joint_positions: list[float], unnormalize: bool = True) -> None:
         """
@@ -122,22 +188,61 @@ class ROS2Interface:
                 )
             ]
 
-        arm_joint_names = self.config.ros2_interface.arm_joint_names
-        if len(joint_positions) != len(arm_joint_names):
-            raise ValueError(
-                f"Expected {len(arm_joint_names)} joint positions, but got {len(joint_positions)}."
-            )
+        if self.config.ros2_interface.action_type == ActionType.JOINT_POSITION:
+            # sent by publishig to topic
+            arm_joint_names = self.config.ros2_interface.arm_joint_names
+            if len(joint_positions) != len(arm_joint_names):
+                raise ValueError(
+                    f"Expected {len(arm_joint_names)} joint positions, but got {len(joint_positions)}."
+                )
 
-        if self.traj_cmd_pub is None:
-            raise DeviceNotConnectedError("Trajectory command publisher is not initialized.")
-        msg = JointTrajectory()
-        arm_joint_names = self.config.ros2_interface.arm_joint_names
-        msg.joint_names = arm_joint_names
-        point = JointTrajectoryPoint()
-        point.positions = joint_positions
-        msg.points = [point]
-        print(f"Publishing joint positions: {joint_positions}")
-        #self.traj_cmd_pub.publish(msg)
+            if self.traj_cmd_pub is None:
+                raise DeviceNotConnectedError("Trajectory command publisher is not initialized.")
+            msg = JointTrajectory()
+            arm_joint_names = self.config.ros2_interface.arm_joint_names
+            msg.joint_names = arm_joint_names
+            point = JointTrajectoryPoint()
+            point.positions = joint_positions
+            msg.points = [point]
+            #print(f"Publishing joint positions: {joint_positions}")
+            self.traj_cmd_pub.publish(msg)
+        elif self.config.ros2_interface.action_type == ActionType.JOINT_TRAJECTORY:
+            # Create and send a FollowJointTrajectory action goal
+            if self._joint_trajectory_client is None:
+                raise DeviceNotConnectedError("Joint trajectory action client is not initialized.")
+            # Check if the previous action is busy, then abort the previous goal
+            if self._current_goal_handle is not None:
+                self._current_goal_handle.cancel_goal_async()
+                self._current_goal_handle = None
+            goal_msg = FollowJointTrajectory.Goal()
+            arm_joint_names = self.config.ros2_interface.arm_joint_names
+            if len(joint_positions) != len(arm_joint_names):
+                raise ValueError(
+                    f"Expected {len(arm_joint_names)} joint positions, but got {len(joint_positions)}."
+                )
+            goal_msg.trajectory.joint_names = arm_joint_names
+            point = JointTrajectoryPoint()
+            point.positions = joint_positions
+            point.time_from_start.sec = 1  # Set a default duration for the trajectory
+            goal_msg.trajectory.points = [point]
+            #print(f"Sending FollowJointTrajectory action goal: {goal_msg}")
+            
+            self.is_executing = True
+
+            # Send the goal and store the future
+            self._send_goal_future = self._joint_trajectory_client.send_goal_async(
+                goal_msg,
+                feedback_callback=self.feedback_callback
+            )
+            # When the goal response is received, store the goal handle
+            def _store_goal_handle(future):
+                goal_handle = future.result()
+                self._current_goal_handle = goal_handle
+                self.goal_response_callback(future)
+
+            self._send_goal_future.add_done_callback(_store_goal_handle)
+        else:
+            raise ValueError(f"Unsupported action type: {self.config.ros2_interface.action_type}")
 
 
     @property

@@ -4,7 +4,7 @@ from .config_teachbot import TeachbotConfig
 from teleop import Teleop as SpesTeleop
 import numpy as np
 import threading
-from .ros_interface import ROS2Interface
+from .ros_interface_teachbot import ROS2Interface
 
 
 class Teachbot(Teleoperator):
