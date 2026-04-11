@@ -108,9 +108,22 @@ lerobot-record \
     --dataset.encoder_threads=4 \
     --robot.ros2_interface.sim=true
 ```
+### Camera setup
+
+In dit voorbeeld gebruiken we een enkele camera die is aangesloten op `/dev/video0`. Zorg ervoor dat deze camera correct is aangesloten en toegankelijk is. U kunt de camera-instellingen aanpassen (zoals resolutie en FPS) op basis van uw specifieke hardware.
+Om een lijst met beschikbare camera's op uw systeem te bekijken, kunt u het volgende commando gebruiken:
+
+```bash
+lerobot-find-cameras opencv # or realsense for Intel Realsense cameras
+```
+
+Voor meer informatie over camera-ondersteuning en configuratie, raadpleeg de [LeRobot-documentatie](https://huggingface.co/docs/lerobot/cameras).
+
 
 ## Replaying
 Om een opgenomen dataset af te spelen, gebruikt u het volgende commando:
+
+*Nog niet getest, maar zou moeten werken met de ROS-versie van LeRobot. Zorg ervoor dat u de juiste dataset-repo_id en root-pad opgeeft.*
 ```bash
 DATASET_ROOT=$HOME/lerobot_recordings
 DATASET_REPO_ID=./record-test
