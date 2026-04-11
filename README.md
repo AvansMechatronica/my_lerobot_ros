@@ -15,6 +15,7 @@ Zorg ervoor dat het volgende is geïnstalleerd voordat u begint:
 - [Teachbot ROS software](https://avansmechatronica.github.io/teachbot/)
 
 ## Snelstart
+### Installatie en setup
 
 Stel eerst LeRobot en lerobot-ros in een virtuele omgeving in. Let op: de Python-versie van de virtual environment moet compatibel zijn met uw ROS-versie. Voor ROS 2 Jazzy gebruiken we Python 3.12.
 
@@ -44,14 +45,16 @@ pip install -e lerobot-robot-ur
 
 ```
 
+### Teleoperatie met Teachbot en UR-robot
+Om een teleoperatie uit te voeren:
 
-Ten slotte, om een teleoperatie uit te voeren:
+*In dit voorbeeld wordt de Teachbot teleoperator gebruikt samen met de UR-robot in een Gazebo-simulatie. Zorg ervoor dat u de Gazebo-simulatie van de UR-robot en de Teachbot ROS-software correct hebt ingesteld voordat u deze stappen uitvoert.*
 
 ```bash
 # In terminal 1, start de Gazebo-simulatie van de UR-robot
 ros2 launch my_ur_bringup simulation.launch.py
 
-# In terminal 2, Laad de techbot ROS-software en start de ROS-node(simulatie)
+# In terminal 2, Laad de Teachbot ROS-software en start de ROS-node(simulatie)
 ros2 launch teachbot_ros sim_teachbot_rviz.launch.py
 
 # In terminal 3, start lerobot met de ROS-versie
@@ -148,3 +151,6 @@ Voor meer informatie over het LeRobot-framework, bezoek de [LeRobot-website](htt
 - Grijper-besturing met ros2_control
   - Met [joint_trajectory_controller](https://control.ros.org/rolling/doc/ros2_controllers/joint_trajectory_controller/doc/userdoc.html)
   - Met [Gripper Action Controller](https://control.ros.org/jazzy/doc/ros2_controllers/gripper_controllers/doc/userdoc.html)
+- Teleoperatie met de Teachbot ROS-software
+  - [Teachbot ROS software](https://avansmechatronica.github.io/teachbot/)
+  - [Avans Universal Robous template](https://avansmechatronica.github.io/my_ur_ROS2/)
