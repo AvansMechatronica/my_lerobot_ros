@@ -111,6 +111,7 @@ lerobot-record \
     --dataset.encoder_threads=4 \
     --robot.ros2_interface.sim=true
 ```
+*Gebruik `--dataset.vcodec=auto` als u wilt dat LeRobot automatisch de beste videocodec kiest op basis van uw systeem en hardware. Als er een NVIDIA GPU beschikbaar is, zal LeRobot automatisch `h264_nvenc` gebruiken voor hardwareversnelde encoding, wat aanzienlijk betere prestaties kan bieden bij het opnemen van hoge-resolutie video.*    
 ### Camera setup
 
 In dit voorbeeld gebruiken we een enkele camera die is aangesloten op `/dev/video0`. Zorg ervoor dat deze camera correct is aangesloten en toegankelijk is. U kunt de camera-instellingen aanpassen (zoals resolutie en FPS) op basis van uw specifieke hardware.
