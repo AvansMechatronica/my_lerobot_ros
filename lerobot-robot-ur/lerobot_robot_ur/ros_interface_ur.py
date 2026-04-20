@@ -212,9 +212,10 @@ class ROS2Interface:
             if self._joint_trajectory_client is None:
                 raise DeviceNotConnectedError("Joint trajectory action client is not initialized.")
             # Check if the previous action is busy, then abort the previous goal
-            if self._current_goal_handle is not None:
-                self._current_goal_handle.cancel_goal_async()
-                self._current_goal_handle = None
+            if 0:
+                if self._current_goal_handle is not None:
+                    self._current_goal_handle.cancel_goal_async()
+                    self._current_goal_handle = None
             goal_msg = FollowJointTrajectory.Goal()
             arm_joint_names = self.config.ros2_interface.arm_joint_names
             if len(joint_positions) != len(arm_joint_names):
@@ -224,7 +225,8 @@ class ROS2Interface:
             goal_msg.trajectory.joint_names = arm_joint_names
             point = JointTrajectoryPoint()
             point.positions = joint_positions
-            point.time_from_start.sec = 1  # Set a default duration for the trajectory
+            point.time_from_start.sec = 2  # Set a default duration for the trajectory
+            #point.time_from_start.nanosec = int(0.3 * 1e9)  # Set a default duration for the trajectory
             goal_msg.trajectory.points = [point]
             #print(f"Sending FollowJointTrajectory action goal: {goal_msg}")
             

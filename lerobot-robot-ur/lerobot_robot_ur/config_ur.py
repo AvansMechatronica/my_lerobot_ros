@@ -76,7 +76,7 @@ class ROS2InterfaceConfig:
     action_type: ActionType = ActionType.JOINT_TRAJECTORY
     trajectory_publisher: str = "/arm_controller/joint_trajectory"
     joint_trajectory_controller_sim: str = "/joint_trajectory_controller/follow_joint_trajectory"
-    joint_trajectory_controller: str = "/joint_trajectory_controller/scaled_joint_trajectory_controller"
+    joint_trajectory_controller: str = "/scaled_joint_trajectory_controller/follow_joint_trajectory"
     sim: bool = False
 
 @dataclass
@@ -103,7 +103,7 @@ class UrConfig(ROS2Config):
             base_link="base_link",
             trajectory_publisher="/arm_controller/joint_trajectory",
             joint_trajectory_controller_sim="/joint_trajectory_controller/follow_joint_trajectory",
-            joint_trajectory_action_controller="/joint_trajectory_controller/scaled_joint_trajectory_controller",
+            joint_trajectory_controller="/scaled_joint_trajectory_controller/follow_joint_trajectory",
             min_joint_positions=[-6.283, -2.356, -3.141, -6.283, -6.283, -6.283],
             max_joint_positions=[6.283, 2.356, 3.141, 6.283, 6.283, 6.283],
             gripper_open_position=0.0,
