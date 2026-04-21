@@ -50,13 +50,33 @@ Om een teleoperatie uit te voeren:
 
 *In dit voorbeeld wordt de Teachbot teleoperator gebruikt samen met de UR-robot in een Gazebo-simulatie. Zorg ervoor dat u de Gazebo-simulatie van de UR-robot en de Teachbot ROS-software correct hebt ingesteld voordat u deze stappen uitvoert.*
 
+#### Starten UR5
+Voor simulatie:
 ```bash
 # In terminal 1, start de Gazebo-simulatie van de UR-robot
 ros2 launch my_ur_bringup simulation.launch.py
+```
+Voor real UR5 Robot
+```
+# In terminal 1, start de real_robot
+ros2 launch my_ur_bringup real_robot.launch.py initial_joint_controller:=passthrough_trajectory_controller
+```
 
+#### Starten TOS Teachbot
+Voor simulatie:
+```bash
 # In terminal 2, Laad de Teachbot ROS-software en start de ROS-node(simulatie)
 ros2 launch teachbot_ros sim_teachbot_rviz.launch.py
+```
 
+Voor real Teachbot:
+```bash
+# In terminal 2, Laad de Teachbot ROS-software en start de ROS-node(simulatie)
+ros2 launch teachbot_ros teachbot_rviz.launch.py
+```
+
+#### Starten Lerobot teleoperatie
+```bash
 # In terminal 3, start lerobot met de ROS-versie
 lerobot-teleoperate \
   --robot.type=lerobot_robot_ur \

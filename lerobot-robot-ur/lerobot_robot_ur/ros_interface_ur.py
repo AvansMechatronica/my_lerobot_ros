@@ -118,10 +118,10 @@ class ROS2Interface:
         try:
             goal_handle = future.result()
             if not goal_handle.accepted:
-                print('Goal rejected by action server')
-                print('Possible reasons: controller not ready, invalid trajectory, or joints mismatch')
-                print('Check that the controller is running: ros2 control list_controllers')
-                self.is_executing = False
+                #print('Goal rejected by action server')
+                #print('Possible reasons: controller not ready, invalid trajectory, or joints mismatch')
+                #print('Check that the controller is running: ros2 control list_controllers')
+                #self.is_executing = False
                 return
             
             #print('Goal accepted')
@@ -225,7 +225,7 @@ class ROS2Interface:
             goal_msg.trajectory.joint_names = arm_joint_names
             point = JointTrajectoryPoint()
             point.positions = joint_positions
-            point.time_from_start.sec = 2  # Set a default duration for the trajectory
+            point.time_from_start.sec = 1  # Set a default duration for the trajectory
             #point.time_from_start.nanosec = int(0.3 * 1e9)  # Set a default duration for the trajectory
             goal_msg.trajectory.points = [point]
             #print(f"Sending FollowJointTrajectory action goal: {goal_msg}")
