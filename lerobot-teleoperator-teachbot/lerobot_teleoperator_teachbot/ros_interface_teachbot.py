@@ -13,6 +13,7 @@
 # limitations under the License.
 
 import logging
+import math
 import threading
 import time
 
@@ -63,6 +64,9 @@ class ROS2Interface:
         self.executor_thread: threading.Thread | None = None
         self.is_connected = False
         self._last_joint_state: dict[str, dict[str, float]] | None = None
+        self._teachbot_joint_positions: dict[str, float] = {}  # Store current teachbot joint positions
+        self._target_robot_joint_positions: dict[str, float] = {}  # Store target robot joint positions
+        self.target_joint_offsets = [math.radians(x) for x in self.config.target_joint_offsets]
         self.teachbot_pot_precent = 0.0
         self.teachbot_btn1 = False
         self._teachbot_btn1_prev = False
@@ -108,6 +112,13 @@ class ROS2Interface:
             10
         )
 
+        self.target_joint_state_sub = self.robot_node.create_subscription(
+            JointState,
+            self.config.target_joint_state_topic,
+            self._target_joint_state_callback,
+            10,
+        )     
+
         # Create and start the executor in a separate thread
         self.executor = SingleThreadedExecutor()
         self.executor.add_node(self.robot_node)
@@ -134,21 +145,25 @@ class ROS2Interface:
         return self._last_joint_state
 
     def _joint_state_callback(self, msg: "JointState") -> None:
+        self._last_joint_state = self._last_joint_state or {}
+        positions = {}
+        name_to_index = {name: i for i, name in enumerate(msg.name)}
+        
+        # Extract teachbot joint positions
+        for joint_name in self.config.arm_joint_names:
+            # Try direct match
+            idx = name_to_index.get(joint_name)
+            # If not found, try with 'teachbot/' prefix
+            if idx is None:
+                prefixed_name = f"teachbot/{joint_name}"
+                idx = name_to_index.get(prefixed_name)
+            if idx is None:
+                raise ValueError(f"Joint '{joint_name}' (or 'teachbot/{joint_name}') not found in joint state.")
+            positions[joint_name] = msg.position[idx]
+            # Store as teachbot joint positions
+            self._teachbot_joint_positions[joint_name] = msg.position[idx]
+        
         if self.teachbot_enabled:
-            self._last_joint_state = self._last_joint_state or {}
-            positions = {}
-            name_to_index = {name: i for i, name in enumerate(msg.name)}
-            for joint_name in self.config.arm_joint_names:
-                # Try direct match
-                idx = name_to_index.get(joint_name)
-                # If not found, try with 'teachbot/' prefix
-                if idx is None:
-                    prefixed_name = f"teachbot/{joint_name}"
-                    idx = name_to_index.get(prefixed_name)
-                if idx is None:
-                    raise ValueError(f"Joint '{joint_name}' (or 'teachbot/{joint_name}') not found in joint state.")
-                positions[joint_name] = msg.position[idx]
-
             self._last_joint_state["position"] = positions
             if self.config.use_gripper:
                 if self.config.vacuum_gripper:
@@ -159,22 +174,79 @@ class ROS2Interface:
                 else:
                     self._last_joint_state["gripper"] = self.teachbot_pot_precent
         else:
-            self._last_joint_state = self._last_joint_state or {}
-            positions = {}
-            name_to_index = {name: i for i, name in enumerate(msg.name)}
-            for joint_name in self.config.arm_joint_names:
-                # Try direct match
-                idx = name_to_index.get(joint_name)
-                # If not found, try with 'teachbot/' prefix
-                if idx is None:
-                    prefixed_name = f"teachbot/{joint_name}"
-                    idx = name_to_index.get(prefixed_name)
-                if idx is None:
-                    raise ValueError(f"Joint '{joint_name}' (or 'teachbot/{joint_name}') not found in joint state.")
-                positions[joint_name] = 0.0
-
+            # When disabled, set position to zeros
+            positions = {joint_name: 0.0 for joint_name in self.config.arm_joint_names}
             self._last_joint_state["position"] = positions
 
+
+    def _target_joint_state_callback(self, msg: "JointState") -> None:
+        """Callback for target robot joint state messages from /joint_states."""
+        name_to_index = {name: i for i, name in enumerate(msg.name)}
+        
+        # Extract target robot joint positions
+        for joint_name in self.config.target_joint_names:
+            # Try direct match
+            idx = name_to_index.get(joint_name)
+            # If not found, try with 'ur_' prefix (common for UR robots)
+            if idx is None:
+                prefixed_name = f"ur_{joint_name}"
+                idx = name_to_index.get(prefixed_name)
+            if idx is not None:
+                self._target_robot_joint_positions[joint_name] = msg.position[idx]
+
+    def _are_joint_positions_aligned(self) -> bool:
+        """
+        Check if target robot joint positions are within ±20 degrees of teachbot joints,
+        with configured target joint offsets applied.
+        Returns True if aligned or if state is not yet available, False otherwise.
+        """
+        if not self._teachbot_joint_positions:
+            # No teachbot positions received yet, allow enabling
+            #print("No teachbot joint positions received yet, allowing teleoperation to be enabled.")
+            return False
+        
+        if not self._target_robot_joint_positions:
+            # No target robot positions received yet, allow enabling
+            #print("No target robot joint positions received yet, allowing teleoperation to be enabled.")
+            return False
+        
+        threshold_radians = math.radians(20.0)
+        
+        # Check if all mapped joints are within threshold
+        for i, target_joint_name in enumerate(self.config.target_joint_names):
+            if i >= len(self.config.arm_joint_names):
+                continue
+
+            teachbot_joint_name = self.config.arm_joint_names[i]
+            if target_joint_name not in self._target_robot_joint_positions or teachbot_joint_name not in self._teachbot_joint_positions:
+                continue
+            
+            target_robot_pos = self._target_robot_joint_positions[target_joint_name]
+            teachbot_pos = self._teachbot_joint_positions[teachbot_joint_name]
+            joint_offset = self.target_joint_offsets[i] if i < len(self.target_joint_offsets) else 0.0
+            expected_target_pos = teachbot_pos + joint_offset
+
+            # Use wrapped angular distance to handle joints crossing ±pi
+            position_diff = abs(math.atan2(math.sin(target_robot_pos - expected_target_pos), math.cos(target_robot_pos - expected_target_pos)))
+            
+            # If any joint differs by more than threshold, return False
+            if position_diff > threshold_radians:
+                logger.debug(
+                    f"Joint '{target_joint_name}' misaligned: robot={target_robot_pos:.3f} rad, "
+                    f"teachbot={teachbot_pos:.3f} rad, offset={joint_offset:.3f} rad, "
+                    f"expected={expected_target_pos:.3f} rad, diff={position_diff:.3f} rad"
+                )
+                print(
+                    f"Joint '{target_joint_name}' misaligned: "
+                    f"robot={target_robot_pos:.3f} rad, "
+                    f"teachbot={teachbot_pos:.3f} rad, "
+                    f"offset={joint_offset:.3f} rad, "
+                    f"expected={expected_target_pos:.3f} rad, "
+                    f"diff={position_diff:.3f} rad"
+                )
+                return False
+        print("All joints are aligned within threshold.")
+        return True
 
     def _teachbot_state_callback(self, msg: TeachbotState):
         """Callback for teachbot state messages."""
@@ -183,9 +255,21 @@ class ROS2Interface:
         self.teachbot_btn1 = msg.pistol.btn1
         self.teachbot_btn2 = msg.pistol.btn2
 
-        # Toggle teachbot_enabled on btn1 rising edge
+        # Toggle teachbot_enabled on btn1 rising edge, only if joint positions are within ±20 degrees
         if self.teachbot_btn1 and not self._teachbot_btn1_prev:
-            self.teachbot_enabled = not self.teachbot_enabled
+            if not self.teachbot_enabled:
+                # Check alignment only when enabling
+                if self._are_joint_positions_aligned():
+                    self.teachbot_enabled = True
+                else:
+                    logger.warning(
+                        "Cannot enable teleoperation: robot joint positions differ from teachbot by more than 20 degrees. "
+                        "Please manually move the robot to match the teachbot position."
+                    )
+            else:
+                # Disable without alignment check
+                self.teachbot_enabled = False
+        
         self._teachbot_btn1_prev = self.teachbot_btn1
 
 
