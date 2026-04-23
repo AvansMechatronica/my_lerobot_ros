@@ -81,8 +81,10 @@ class ROS2Interface:
         temp_executor.add_node(self.robot_node)
 
         if self.config.ros2_interface.action_type == ActionType.JOINT_POSITION:
-            self.traj_cmd_pub = self.robot_node.create_publisher(
-                JointTrajectory, self.config.ros2_interface.trajectory_publisher, 10
+            self.pos_cmd_pub = self.robot_node.create_publisher(
+                Float64MultiArray,
+                self.config.ros2_interface.joint_position_controller_commands,
+                10,
             )
         elif self.config.ros2_interface.action_type == ActionType.JOINT_TRAJECTORY:
             controller_name = self.config.ros2_interface.joint_trajectory_controller_sim if self.config.ros2_interface.sim else self.config.ros2_interface.joint_trajectory_controller
@@ -197,16 +199,12 @@ class ROS2Interface:
                     f"Expected {len(arm_joint_names)} joint positions, but got {len(joint_positions)}."
                 )
 
-            if self.traj_cmd_pub is None:
-                raise DeviceNotConnectedError("Trajectory command publisher is not initialized.")
-            msg = JointTrajectory()
-            arm_joint_names = self.config.ros2_interface.arm_joint_names
-            msg.joint_names = arm_joint_names
-            point = JointTrajectoryPoint()
-            point.positions = joint_positions
-            msg.points = [point]
+            if self.pos_cmd_pub is None:
+                raise DeviceNotConnectedError("Joint position controller publisher is not initialized.")
+            msg = Float64MultiArray()
+            msg.data = list(joint_positions)
             #print(f"Publishing joint positions: {joint_positions}")
-            self.traj_cmd_pub.publish(msg)
+            self.pos_cmd_pub.publish(msg)
         elif self.config.ros2_interface.action_type == ActionType.JOINT_TRAJECTORY:
             # Create and send a FollowJointTrajectory action goal
             if self._joint_trajectory_client is None:

@@ -73,10 +73,12 @@ class ROS2InterfaceConfig:
         "wrist_2_joint": "wrist_2_joint",
         "wrist_3_joint": "wrist_3_joint",
     })
+    #action_type: ActionType = ActionType.JOINT_POSITION #ActionType.JOINT_TRAJECTORY
     action_type: ActionType = ActionType.JOINT_TRAJECTORY
     trajectory_publisher: str = "/arm_controller/joint_trajectory"
     joint_trajectory_controller_sim: str = "/joint_trajectory_controller/follow_joint_trajectory"
     joint_trajectory_controller: str = "/scaled_joint_trajectory_controller/follow_joint_trajectory"
+    joint_position_controller_commands: str = "/forward_position_controller/commands"
     sim: bool = False
 
 @dataclass
@@ -102,8 +104,10 @@ class UrConfig(ROS2Config):
             gripper_joint_name="gripper_joint",
             base_link="base_link",
             trajectory_publisher="/arm_controller/joint_trajectory",
+            action_type=ActionType.JOINT_POSITION, #ActionType.JOINT_TRAJECTORY
             joint_trajectory_controller_sim="/joint_trajectory_controller/follow_joint_trajectory",
             joint_trajectory_controller="/passthrough_trajectory_controller/follow_joint_trajectory",
+            joint_position_controller_commands="/forward_position_controller/commands",
             min_joint_positions=[-6.283, -2.356, -3.141, -6.283, -6.283, -6.283],
             max_joint_positions=[6.283, 2.356, 3.141, 6.283, 6.283, 6.283],
             gripper_open_position=0.0,
