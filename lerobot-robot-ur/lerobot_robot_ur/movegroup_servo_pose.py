@@ -101,10 +101,10 @@ class Movegroup2ServoPose:
     def send_action(self, action: dict[str, Any], dummy) -> dict[str, Any]:
         linear = action.get("linear", (0.0, 0.0, 0.0))
         angular = action.get("angular", (0.0, 0.0, 0.0))
-        self.servo(linear=linear, angular=angular)
+        self.pose(linear=linear, angular=angular)
         return {}
 
-    def servo(self, linear=(0.0, 0.0, 0.0), angular=(0.0, 0.0, 0.0), enable_if_disabled=True):
+    def pose(self, linear=(0.0, 0.0, 0.0), angular=(0.0, 0.0, 0.0), enable_if_disabled=True):
         if not self._enabled and enable_if_disabled and not self.enable():
             logger.warning("Dropping servo command because MoveIt2 Servo is not enabled.")
             return
