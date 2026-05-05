@@ -8,7 +8,10 @@ from enum import Enum
 class ActionType(Enum):
     CARTESIAN_VELOCITY = "cartesian_velocity"
     JOINT_POSITION = "joint_position"
-    JOINT_TRAJECTORY = "joint_trajectory"
+    MOVEGROUP_FOLLOW_JOINT_TRAJECTION = "movegroup_follow_joint_trajectory"
+    MOVEGROUP_SERVO_TWIST = "movegroup_servo_twist"
+    MOVEGROUP_SERVO_POSE = "movegroup_servo_pose"
+    MOVEGROUP_SERVO_JOG = "movegroup_servo_jog"
 
 @dataclass
 class ROS2InterfaceConfig:
@@ -73,8 +76,7 @@ class ROS2InterfaceConfig:
         "wrist_2_joint": "wrist_2_joint",
         "wrist_3_joint": "wrist_3_joint",
     })
-    #action_type: ActionType = ActionType.JOINT_POSITION #ActionType.JOINT_TRAJECTORY
-    action_type: ActionType = ActionType.JOINT_TRAJECTORY
+    action_type: ActionType = ActionType.JOINT_POSITION
     trajectory_publisher: str = "/arm_controller/joint_trajectory"
     joint_trajectory_controller_sim: str = "/joint_trajectory_controller/follow_joint_trajectory"
     joint_trajectory_controller: str = "/scaled_joint_trajectory_controller/follow_joint_trajectory"
@@ -104,7 +106,7 @@ class UrConfig(ROS2Config):
             gripper_joint_name="gripper_joint",
             base_link="base_link",
             trajectory_publisher="/arm_controller/joint_trajectory",
-            action_type=ActionType.JOINT_POSITION, #ActionType.JOINT_TRAJECTORY
+            action_type=ActionType.JOINT_POSITION, #ActionType.MOVEGROUP_FOLLOW_JOINT_TRAJECTION
             joint_trajectory_controller_sim="/joint_trajectory_controller/follow_joint_trajectory",
             joint_trajectory_controller="/passthrough_trajectory_controller/follow_joint_trajectory",
             joint_position_controller_commands="/forward_position_controller/commands",

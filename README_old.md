@@ -100,7 +100,7 @@ Deze optie gebruikt [joint_trajectory_controller](https://control.ros.org/rollin
 - `joint_trajectory_controller/JointTrajectoryController` voor de robotarmgewrichten
 - `joint_state_broadcaster/JointStateBroadcaster` voor terugkoppeling van de gewrichtstoestand
 
-Deze optie wordt ingeschakeld door `action_type` in te stellen op `ActionType.JOINT_TRAJECTORY` in de robotconfiguratie.
+Deze optie wordt ingeschakeld door `action_type` in te stellen op `ActionType.MOVEGROUP_FOLLOW_JOINT_TRAJECTION` in de robotconfiguratie.
 
 **Optie 3: Eindeffector-besturing**
 

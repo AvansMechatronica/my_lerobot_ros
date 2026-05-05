@@ -49,7 +49,7 @@ class ROS2Interface:
       Uses JointGroupPositionController.
       Publishes Float64MultiArray messages to '/position_controller/commands'
 
-    - ActionType.JOINT_TRAJECTORY:
+    - ActionType.MOVEGROUP_FOLLOW_JOINT_TRAJECTION:
       Uses JointTrajectoryController.
       Publishes JointTrajectory messages to '/arm_controller/joint_trajectory'
 
