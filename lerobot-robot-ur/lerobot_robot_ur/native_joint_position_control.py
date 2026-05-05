@@ -16,7 +16,7 @@ import logging
 
 
 from std_msgs.msg import Float64MultiArray
-from .ros_interface_ur import DeviceNotConnectedError
+from lerobot.utils.errors import DeviceNotConnectedError, DeviceAlreadyConnectedError
 from rclpy import qos
 from rclpy.callback_groups import CallbackGroup
 from rclpy.node import Node

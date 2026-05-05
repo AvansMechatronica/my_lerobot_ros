@@ -22,7 +22,7 @@ from rclpy.callback_groups import CallbackGroup
 from rclpy.node import Node
 from control_msgs.action import FollowJointTrajectory
 from rclpy.action import ActionClient
-from .ros_interface_ur import DeviceNotConnectedError
+from lerobot.utils.errors import DeviceNotConnectedError, DeviceAlreadyConnectedError
 from .config_ur import UrConfig
 from typing import Any
 

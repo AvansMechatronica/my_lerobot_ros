@@ -26,7 +26,7 @@ from traitlets import Any
 
 from control_msgs.action import GripperCommand
 from .config_ur import UrConfig, ActionType
-from .ros_interface_ur import DeviceNotConnectedError
+from lerobot.utils.errors import DeviceNotConnectedError, DeviceAlreadyConnectedError
 from .movegroup_servo_twist import Movegroup2ServoTwist
 from .movegroup_servo_jog import Movegroup2ServoJog
 from .movegroup_servo_pose import Movegroup2ServoPose
