@@ -22,8 +22,11 @@ from rclpy.executors import Executor, SingleThreadedExecutor
 from rclpy.node import Node
 from sensor_msgs.msg import JointState
 
+from traitlets import Any
+
 from control_msgs.action import GripperCommand
 from .config_ur import UrConfig, ActionType
+from .ros_interface_ur import DeviceNotConnectedError
 from .movegroup_servo_twist import Movegroup2ServoTwist
 from .movegroup_servo_jog import Movegroup2ServoJog
 from .movegroup_servo_pose import Movegroup2ServoPose
@@ -108,6 +111,10 @@ class ROS2Interface:
 
         self.is_connected = True
 
+    def send_action(self, action: dict[str, Any]) -> dict[str, Any]:
+        if not self.is_connected:
+            raise DeviceNotConnectedError("ROS2Interface is not connected. Call connect() before sending actions.")
+        return self.ros_control.send_action(action, self._last_joint_state)
 
     @property
     def joint_state(self) -> dict[str, dict[str, float]] | None:

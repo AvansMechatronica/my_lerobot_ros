@@ -24,6 +24,7 @@ from control_msgs.action import FollowJointTrajectory
 from rclpy.action import ActionClient
 from .ros_interface_ur import DeviceNotConnectedError
 from .config_ur import UrConfig
+from typing import Any
 
 logger = logging.getLogger(__name__)
 
@@ -60,7 +61,7 @@ class Movegroup2FollowJointTrajectory:
     def disable(self, wait_for_server_timeout_sec=1.0) -> bool:
         pass
 
-    def send_action(self, action: dict[str, Any]) -> dict[str, Any]:
+    def send_action(self, action: dict[str, Any], dummy) -> dict[str, Any]:
         """
         Send an action command to the robot.
         Args:

@@ -14,7 +14,6 @@
 
 import logging
 
-from typeguard import config
 
 from geometry_msgs.msg import TwistStamped
 from moveit_msgs.srv import ServoCommandType
@@ -23,6 +22,7 @@ from rclpy.callback_groups import CallbackGroup
 from rclpy.node import Node
 from std_srvs.srv import SetBool
 from .config_ur import UrConfig
+from typing import Any
 
 logger = logging.getLogger(__name__)
 
@@ -41,7 +41,8 @@ class Movegroup2ServoTwist:
         self.config = config
         self._node = node
         self._frame_id = self.config.frame_id
-        self._enabled = False   
+        self._enabled = False 
+        self.callback_group = callback_group  
 
     def connect(self) -> None:
         self._twist_pub = self._node.create_publisher(
@@ -52,13 +53,13 @@ class Movegroup2ServoTwist:
                 reliability=qos.QoSReliabilityPolicy.RELIABLE,
                 history=qos.QoSHistoryPolicy.KEEP_ALL,
             ),
-            callback_group=callback_group,
+            callback_group=self.callback_group,
         )
-        self._pause_srv = node.create_client(
-            SetBool, "/servo_node/pause_servo", callback_group=callback_group
+        self._pause_srv = self._node.create_client(
+            SetBool, "/servo_node/pause_servo", callback_group=self.callback_group
         )
-        self._cmd_type_srv = node.create_client(
-            ServoCommandType, "/servo_node/switch_command_type", callback_group=callback_group
+        self._cmd_type_srv = self._node.create_client(
+            ServoCommandType, "/servo_node/switch_command_type", callback_group=self.callback_group
         )
         self._twist_msg = TwistStamped()
         self._enable_req = SetBool.Request(data=False)
@@ -94,7 +95,7 @@ class Movegroup2ServoTwist:
         self._enabled = not (result and result.success)
         return bool(result and result.success)
 
-    def send_action(self, action: dict[str, Any]) -> dict[str, Any]:
+    def send_action(self, action: dict[str, Any], dummy) -> dict[str, Any]:
         linear = action.get("linear", (0.0, 0.0, 0.0))
         angular = action.get("angular", (0.0, 0.0, 0.0))
         self.servo(linear=linear, angular=angular)

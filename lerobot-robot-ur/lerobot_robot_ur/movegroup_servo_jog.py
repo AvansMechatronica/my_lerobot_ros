@@ -14,22 +14,26 @@
 
 import logging
 
-from geometry_msgs.msg import TwistStamped
+from traitlets import Any
+
+
+from geometry_msgs.msg import JointJog
+from sensor_msgs.msg import JointState
 from moveit_msgs.srv import ServoCommandType
 from rclpy import qos
 from rclpy.callback_groups import CallbackGroup
 from rclpy.node import Node
 from std_srvs.srv import SetBool
 from .config_ur import UrConfig
-
-from .config_ur import UrConfig
+from typing import Any
 
 logger = logging.getLogger(__name__)
 
 
+
 class Movegroup2ServoJog:
     """
-    Python interface for MoveIt2 FollowJointTrajectory.
+    Python interface for MoveIt2 Servo.
     """
 
     def __init__(
@@ -41,19 +45,93 @@ class Movegroup2ServoJog:
         self.config = config
         self._node = node
         self._frame_id = self.config.frame_id
-        self._enabled = False
+        self._enabled = False   
+        self._callback_group = callback_group
 
     def connect(self) -> None:
-        pass
+        self._jog_pub = self._node.create_publisher(
+            JointJog,
+            "/servo_node/delta_joint_cmds",
+            qos.QoSProfile(
+                durability=qos.QoSDurabilityPolicy.VOLATILE,
+                reliability=qos.QoSReliabilityPolicy.RELIABLE,
+                history=qos.QoSHistoryPolicy.KEEP_ALL,
+            ),
+            callback_group=self._callback_group,
+        )
+        self._pause_srv = self._node.create_client(
+            SetBool, "/servo_node/pause_servo", callback_group=self._callback_group
+        )
+        self._cmd_type_srv = self._node.create_client(
+            ServoCommandType, "/servo_node/switch_command_type", callback_group=self._callback_group
+        )
+        self._jog_msg = JointJog()
+        self._enable_req = SetBool.Request(data=False)
+        self._disable_req = SetBool.Request(data=True)
+        self._jog_type_req = ServoCommandType.Request(command_type=ServoCommandType.Request.JOINT_JOG)
+        self.previous_time = self._node.get_clock().now()
 
     def enable(self, wait_for_server_timeout_sec=1.0) -> bool:
+        if not self._pause_srv.wait_for_service(timeout_sec=wait_for_server_timeout_sec):
+            logger.warning("Pause service not available.")
+            return False
+        if not self._cmd_type_srv.wait_for_service(timeout_sec=wait_for_server_timeout_sec):
+            logger.warning("Command type service not available.")
+            return False
+        result = self._pause_srv.call(self._enable_req)
+        if not result or not result.success:
+            logger.error(f"Enable failed: {getattr(result, 'message', '')}")
+            self._enabled = False
+            return False
+        cmd_result = self._cmd_type_srv.call(self._jog_type_req)
+        if not cmd_result or not cmd_result.success:
+            logger.error("Switch to JOINT_JOG command type failed.")
+            self._enabled = False
+            return False
+        logger.info("MoveIt Servo enabled.")
+        self._enabled = True
         return True
 
     def disable(self, wait_for_server_timeout_sec=1.0) -> bool:
-        pass
+        if not self._pause_srv.wait_for_service(timeout_sec=wait_for_server_timeout_sec):
+            logger.warning("Pause service not available.")
+            return False
+        result = self._pause_srv.call(self._disable_req)
+        self._enabled = not (result and result.success)
+        return bool(result and result.success)
 
-    def send_action(self, action: dict[str, Any]) -> dict[str, Any]:
+    def send_action(self, action: dict[str, Any], last_joint_state: JointState) -> dict[str, Any]:
+        """ calcualte differences between current joint state and target joint state, then send as a jog command  """
+        """ calculate velocities for each joint based on the difference and a gain factor, then send as a jog command  """
+        time = self._node.get_clock().now()
+        dt = (time - self.previous_time).nanoseconds / 1e9
+        if dt <= 0.0:
+            logger.warning("Non-positive time difference between commands, skipping jog command.")
+            return {}
+        joint_positions = action.get("joint_positions")
+        if joint_positions is None:
+            raise ValueError("Action must contain 'joint_positions' key.")
+        current_positions = [getattr(last_joint_state, f"joint{i+1}", 0.0) for i in range(6)]
+        target_positions = joint_positions
+        position_differences = [target - current for target, current in zip(target_positions, current_positions)]
+        """ velocity = position_difference / dt """       
+        velocities = [diff / dt for diff in position_differences]
+        self.jog(linear=velocities[:3], angular=velocities[3:], enable_if_disabled=True)
+
+        self.previous_time = time
+
         return {}
 
+    def jog(self, linear=(0.0, 0.0, 0.0), angular=(0.0, 0.0, 0.0), enable_if_disabled=True):
+        if enable_if_disabled and not self._enabled:
+            self.enable()
+        self._jog_msg.header.stamp = self._node.get_clock().now().to_msg()
+        self._jog_msg.header.frame_id = self._frame_id
+        self._jog_msg.joint_names = [f"joint{i+1}" for i in range(6)]
+        self._jog_msg.velocities = list(linear) + list(angular)
+        self._jog_pub.publish(self._jog_msg)
+
     def destroy(self) -> None:
-        pass
+        if self._twist_pub:
+            self._twist_pub.destroy()
+            self._twist_pub = None

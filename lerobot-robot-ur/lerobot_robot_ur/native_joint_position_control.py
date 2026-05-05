@@ -53,7 +53,7 @@ class NativeJointPositionControl:
     def disable(self, wait_for_server_timeout_sec=1.0) -> bool:
         pass
 
-    def send_action(self, action: dict[str, Any]) -> dict[str, Any]:
+    def send_action(self, action: dict[str, Any], dummy) -> dict[str, Any]:
         """
         Send an action command to the robot.
         Args:
