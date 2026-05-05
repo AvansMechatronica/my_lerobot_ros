@@ -81,6 +81,11 @@ class ROS2InterfaceConfig:
     joint_trajectory_controller_sim: str = "/joint_trajectory_controller/follow_joint_trajectory"
     joint_trajectory_controller: str = "/scaled_joint_trajectory_controller/follow_joint_trajectory"
     joint_position_controller_commands: str = "/forward_position_controller/commands"
+    servo_delta_joint_cmds: str = "/servo_node/delta_joint_cmds"
+    servo_pose_cmds: str = "/servo_node/pose_cmds"
+    servo_delta_twist_cmds: str = "/servo_node/delta_twist_cmds"
+    servo_pause: str = "/servo_node/pause_servo"
+    servo_switch_command_type: str = "/servo_node/switch_command_type"
     sim: bool = False
 
 @dataclass
@@ -110,6 +115,11 @@ class UrConfig(ROS2Config):
             joint_trajectory_controller_sim="/joint_trajectory_controller/follow_joint_trajectory",
             joint_trajectory_controller="/passthrough_trajectory_controller/follow_joint_trajectory",
             joint_position_controller_commands="/forward_position_controller/commands",
+            servo_delta_joint_cmds="/servo_node/delta_joint_cmds",
+            servo_pose_cmds="/servo_node/pose_cmds",
+            servo_delta_twist_cmds="/servo_node/delta_twist_cmds",
+            servo_pause="/servo_node/pause_servo",
+            servo_switch_command_type="/servo_node/switch_command_type",
             min_joint_positions=[-6.283, -2.356, -3.141, -6.283, -6.283, -6.283],
             max_joint_positions=[6.283, 2.356, 3.141, 6.283, 6.283, 6.283],
             gripper_open_position=0.0,

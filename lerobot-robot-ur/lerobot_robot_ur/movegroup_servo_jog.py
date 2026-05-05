@@ -51,7 +51,7 @@ class Movegroup2ServoJog:
     def connect(self) -> None:
         self._jog_pub = self._node.create_publisher(
             JointJog,
-            "/servo_node/delta_joint_cmds",
+            self.config.servo_delta_joint_cmds,
             qos.QoSProfile(
                 durability=qos.QoSDurabilityPolicy.VOLATILE,
                 reliability=qos.QoSReliabilityPolicy.RELIABLE,
@@ -60,10 +60,10 @@ class Movegroup2ServoJog:
             callback_group=self._callback_group,
         )
         self._pause_srv = self._node.create_client(
-            SetBool, "/servo_node/pause_servo", callback_group=self._callback_group
+            SetBool, self.config.servo_pause, callback_group=self._callback_group
         )
         self._cmd_type_srv = self._node.create_client(
-            ServoCommandType, "/servo_node/switch_command_type", callback_group=self._callback_group
+            ServoCommandType, self.config.servo_switch_command_type, callback_group=self._callback_group
         )
         self._jog_msg = JointJog()
         self._enable_req = SetBool.Request(data=False)

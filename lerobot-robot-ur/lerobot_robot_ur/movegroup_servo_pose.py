@@ -50,7 +50,7 @@ class Movegroup2ServoPose:
 
         self._pose_pub = self._node.create_publisher(
             PoseStamped,
-            "/servo_node/pose_cmds",
+            self.config.pose_cmds,
             qos.QoSProfile(
                 durability=qos.QoSDurabilityPolicy.VOLATILE,
                 reliability=qos.QoSReliabilityPolicy.RELIABLE,
@@ -59,10 +59,10 @@ class Movegroup2ServoPose:
             callback_group=self.callback_group,
         )
         self._pause_srv = self._node.create_client(
-            SetBool, "/servo_node/pause_servo", callback_group=self.callback_group
+            SetBool, self.config.servo_pause, callback_group=self.callback_group
         )
         self._cmd_type_srv = self._node.create_client(
-            ServoCommandType, "/servo_node/switch_command_type", callback_group=self.callback_group
+            ServoCommandType, self.config.servo_switch_command_type, callback_group=self.callback_group
         )
         self._pose_msg = PoseStamped()
         self._enable_req = SetBool.Request(data=False)
