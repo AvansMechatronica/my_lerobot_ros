@@ -8,7 +8,9 @@ from lerobot.utils.errors import DeviceNotConnectedError, DeviceAlreadyConnected
 from lerobot.robots.robot import Robot
 from lerobot.robots.utils import ensure_safe_goal_position
 
+
 from .config_ur import UrConfig
+from .config_ur import ActionType
 from .ros_interface_ur import ROS2Interface
 
 
@@ -130,7 +132,7 @@ class Ur(Robot):
 
         self.ros2_interface.disconnect()
 
-        from lerobot.utils.errors import DeviceNotConnectedError
+        
         for cam in self.cameras.values():
             try:
                 cam.disconnect()
@@ -187,12 +189,22 @@ class Ur(Robot):
 
     @property
     def action_features(self) -> dict[str, type]:
-        # Provide action features for each arm joint
-        features = {f"{joint}.pos": float for joint in self.config.ros2_interface.arm_joint_names}
-        # Optionally add gripper
-        if hasattr(self.config.ros2_interface, "gripper_joint_name"):
-            features[f"{self.config.ros2_interface.gripper_joint_name}.pos"] = float
-        return features
+        if self.config.action_type in (ActionType.MOVEGROUP_SERVO_POSE, ActionType.MOVEGROUP_SERVO_TWIST):
+            return {
+                "linear_x.vel": float,
+                "linear_y.vel": float,
+                "linear_z.vel": float,
+                "angular_x.vel": float,
+                "angular_y.vel": float,
+                "angular_z.vel": float,
+                "gripper.pos": float,
+            }
+        elif self.config.action_type in (ActionType.JOINT_POSITION, ActionType.MOVEGROUP_FOLLOW_JOINT_TRAJECTION, ActionType.MOVEGROUP_SERVO_JOG):
+            return {f"{joint}.pos": float for joint in self.config.ros2_interface.arm_joint_names} | {
+                "gripper.pos": float
+            }
+        else:
+            raise ValueError(f"Unsupported action type: {self.config.action_type}")
 
     @property
     def action_features(self) -> dict[str, type]:
