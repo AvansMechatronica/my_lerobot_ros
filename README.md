@@ -59,9 +59,26 @@ ros2 launch my_ur_bringup simulation.launch.py
 Voor real UR5 Robot
 ```
 # In terminal 1, start de real_robot
-ros2 launch my_ur_bringup real_robot.launch.py initial_joint_controller:=passthrough_trajectory_controller
+ros2 launch my_ur_bringup real_robot.launch.py initial_joint_controller:=<zie tabel hieronder>
 ```
 
+action type | controller type | movegroup | opmerking
+--- | --- | --- |--- |
+joint_position | forward_position_controller | niet beschikbaar |
+movegroup_follow_joint_trajectory | scaled_joint_trajectory_controller | optie 1 |
+movegroup_servo_twist | forward_position_controller | optie 2 | Bij gebruik lerobot_teleoperator_twist
+movegroup_servo_pose | forward_position_controller | optie 2 |
+movegroup_servo_jog | forward_position_controller | optie 2 | Bij gebruik Teachbot
+
+
+Optie 1: 
+```bash
+ros2 launch my_ur_bringup move_group.launch.py 
+```
+Optie 2: 
+```bash
+ros2 launch my_ur_bringup move_group.launch.py launch_servo:=true
+```
 #### Starten TOS Teachbot
 Voor simulatie:
 ```bash
