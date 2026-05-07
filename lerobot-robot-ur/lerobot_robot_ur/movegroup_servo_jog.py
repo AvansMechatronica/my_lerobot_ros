@@ -14,10 +14,7 @@
 
 import logging
 
-from traitlets import Any
-
-
-from geometry_msgs.msg import JointJog
+from control_msgs.msg import JointJog
 from sensor_msgs.msg import JointState
 from moveit_msgs.srv import ServoCommandType
 from rclpy import qos

@@ -45,7 +45,11 @@ class Movegroup2FollowJointTrajectory:
         self._enabled = False
 
     def connect(self) -> None:
-        controller_name = self.config.ros2_interface.movegroup_follow_joint_trajection_controller_sim if self.config.ros2_interface.sim else self.config.ros2_interface.movegroup_follow_joint_trajection_controller
+        controller_name = (
+            self.config.ros2_interface.joint_trajectory_controller_sim
+            if self.config.ros2_interface.sim
+            else self.config.ros2_interface.joint_trajectory_controller
+        )
         self._movegroup_follow_joint_trajection_client = ActionClient(
             self._node,
             FollowJointTrajectory,
@@ -83,7 +87,7 @@ class Movegroup2FollowJointTrajectory:
             joint_positions (list[float]): The target positions for the joints.
             unnormalize (bool): Whether to unnormalize the joint positions based on the robot's configuration.
         """
-        if not self.robot_node:
+        if not self._node:
             raise DeviceNotConnectedError("ROS2Interface is not connected. You need to call `connect()`.")
 
         if unnormalize:

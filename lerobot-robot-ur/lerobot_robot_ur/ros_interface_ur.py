@@ -17,12 +17,11 @@ import threading
 import time
 
 import rclpy
+from typing import Any
 from rclpy.callback_groups import ReentrantCallbackGroup
 from rclpy.executors import Executor, SingleThreadedExecutor
 from rclpy.node import Node
 from sensor_msgs.msg import JointState
-
-from traitlets import Any
 
 from control_msgs.action import GripperCommand
 from .config_ur import UrConfig, ActionType
@@ -62,25 +61,51 @@ class ROS2Interface:
     def __init__(self, config: UrConfig):
         self.config = config
         self.robot_node: Node | None = None
+        self._callback_group = ReentrantCallbackGroup()
         self.joint_state_sub = None
         self.executor: Executor | None = None
         self.executor_thread: threading.Thread | None = None
         self.is_connected = False
         # Cache latest arm joint data keyed by configured joint names.
         self._last_joint_state: dict[str, dict[str, float]] | None = {"position": {}, "velocity": {}}
+        self.ros_control = None
+
+    def _create_ros_control(self) -> None:
+        if self.robot_node is None:
+            raise DeviceNotConnectedError("ROS2 node is not initialized. Call connect() before creating controllers.")
 
         if self.config.ros2_interface.action_type == ActionType.MOVEGROUP_SERVO_POSE:
-            self.ros_control= Movegroup2ServoPose(node=self.robot_node, config = self.config, callback_group=ReentrantCallbackGroup())
+            self.ros_control = Movegroup2ServoPose(
+                node=self.robot_node,
+                config=self.config,
+                callback_group=self._callback_group,
+            )
         elif self.config.ros2_interface.action_type == ActionType.MOVEGROUP_SERVO_TWIST:
-            self.ros_control= Movegroup2ServoTwist(node=self.robot_node, config = self.config, callback_group=ReentrantCallbackGroup())
+            self.ros_control = Movegroup2ServoTwist(
+                node=self.robot_node,
+                config=self.config,
+                callback_group=self._callback_group,
+            )
         elif self.config.ros2_interface.action_type == ActionType.MOVEGROUP_SERVO_JOG:
-            self.ros_control= Movegroup2ServoJog(node=self.robot_node, config = self.config, callback_group=ReentrantCallbackGroup())
+            self.ros_control = Movegroup2ServoJog(
+                node=self.robot_node,
+                config=self.config,
+                callback_group=self._callback_group,
+            )
         elif self.config.ros2_interface.action_type == ActionType.MOVEGROUP_FOLLOW_JOINT_TRAJECTION:
-            self.ros_control= Movegroup2FollowJointTrajectory(node=self.robot_node, config = self.config, callback_group=ReentrantCallbackGroup())
+            self.ros_control = Movegroup2FollowJointTrajectory(
+                node=self.robot_node,
+                config=self.config,
+                callback_group=self._callback_group,
+            )
         elif self.config.ros2_interface.action_type == ActionType.JOINT_POSITION:
-            self.ros_control= NativeJointPositionControl(node=self.robot_node, config = self.config, callback_group=ReentrantCallbackGroup()) 
+            self.ros_control = NativeJointPositionControl(
+                node=self.robot_node,
+                config=self.config,
+                callback_group=self._callback_group,
+            )
         else:
-            self.ros_control= None
+            self.ros_control = None
 
 
     def connect(self) -> None:
@@ -92,6 +117,10 @@ class ROS2Interface:
         # Register the node in a temporary executor before controller setup.
         temp_executor = SingleThreadedExecutor()
         temp_executor.add_node(self.robot_node)
+
+        self._create_ros_control()
+        if self.ros_control is None:
+            raise ValueError(f"Unsupported action_type: {self.config.ros2_interface.action_type}")
 
         self.ros_control.connect()
 

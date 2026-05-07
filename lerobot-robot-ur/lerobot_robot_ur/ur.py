@@ -81,7 +81,7 @@ class Ur(Robot):
             arm_val = (teleop_val + offset) * scale
             joint_positions.append(arm_val)
         #print(f"Mapped joint positions: {joint_positions}")
-        self.ros2_interface.send_joint_position_command(joint_positions)
+        self.ros2_interface.send_action({"joint_positions": joint_positions})
 
         #gripper_pos = action["gripper.pos"]
         #self.ros2_interface.send_gripper_command(gripper_pos)

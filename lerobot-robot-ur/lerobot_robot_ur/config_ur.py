@@ -6,6 +6,7 @@ from lerobot.robots.config import RobotConfig
 from enum import Enum
 
 class ActionType(Enum):
+    NONE = "none"
     CARTESIAN_VELOCITY = "cartesian_velocity"
     JOINT_POSITION = "joint_position"
     MOVEGROUP_FOLLOW_JOINT_TRAJECTION = "movegroup_follow_joint_trajectory"
@@ -76,7 +77,7 @@ class ROS2InterfaceConfig:
         "wrist_2_joint": "wrist_2_joint",
         "wrist_3_joint": "wrist_3_joint",
     })
-    action_type: ActionType = ActionType.JOINT_POSITION
+    action_type: ActionType = ActionType.NONE
     trajectory_publisher: str = "/arm_controller/joint_trajectory"
     joint_trajectory_controller_sim: str = "/joint_trajectory_controller/follow_joint_trajectory"
     joint_trajectory_controller: str = "/scaled_joint_trajectory_controller/follow_joint_trajectory"
@@ -87,6 +88,18 @@ class ROS2InterfaceConfig:
     servo_pause: str = "/servo_node/pause_servo"
     servo_switch_command_type: str = "/servo_node/switch_command_type"
     sim: bool = False
+    min_joint_positions: list[float] = field(
+        default_factory=lambda: [-6.283, -2.356, -3.141, -6.283, -6.283, -6.283]
+    )
+    max_joint_positions: list[float] = field(
+        default_factory=lambda: [6.283, 2.356, 3.141, 6.283, 6.283, 6.283]
+    )
+
+
+@dataclass
+class UrROS2InterfaceConfig(ROS2InterfaceConfig):
+    #action_type: ActionType = ActionType.MOVEGROUP_FOLLOW_JOINT_TRAJECTION
+    action_type: ActionType = ActionType.JOINT_POSITION
 
 @dataclass
 class ROS2Config(RobotConfig):
@@ -98,48 +111,5 @@ class ROS2Config(RobotConfig):
 @dataclass
 class UrConfig(ROS2Config):
     """Configuration for the Universal Robots UR5 with ROS 2."""
-    ros2_interface: ROS2InterfaceConfig = field(
-        default_factory=lambda: ROS2InterfaceConfig(
-            arm_joint_names=[
-                "shoulder_pan_joint",
-                "shoulder_lift_joint",
-                "elbow_joint",
-                "wrist_1_joint",
-                "wrist_2_joint",
-                "wrist_3_joint",
-            ],
-            gripper_joint_name="gripper_joint",
-            base_link="base_link",
-            trajectory_publisher="/arm_controller/joint_trajectory",
-            action_type=ActionType.JOINT_POSITION, #ActionType.MOVEGROUP_FOLLOW_JOINT_TRAJECTION
-            joint_trajectory_controller_sim="/joint_trajectory_controller/follow_joint_trajectory",
-            joint_trajectory_controller="/passthrough_trajectory_controller/follow_joint_trajectory",
-            joint_position_controller_commands="/forward_position_controller/commands",
-            servo_delta_joint_cmds="/servo_node/delta_joint_cmds",
-            servo_pose_cmds="/servo_node/pose_target_cmds",
-            servo_delta_twist_cmds="/servo_node/delta_twist_cmds",
-            servo_pause="/servo_node/pause_servo",
-            servo_switch_command_type="/servo_node/switch_command_type",
-            min_joint_positions=[-6.283, -2.356, -3.141, -6.283, -6.283, -6.283],
-            max_joint_positions=[6.283, 2.356, 3.141, 6.283, 6.283, 6.283],
-            gripper_open_position=0.0,
-            gripper_close_position=1.0,
-            target_degree_offsets={
-                "shoulder_pan_joint": 0.0,
-                "shoulder_lift_joint": -90.0,
-                "elbow_joint": -90.0,
-                "wrist_1_joint": 0.0,
-                "wrist_2_joint": 90.0,
-                "wrist_3_joint": 0.0,
-            },
-            joint_scale_factors={
-                "shoulder_pan_joint": 1.0,
-                "shoulder_lift_joint": 1.0,
-                "elbow_joint": 1.0,
-                "wrist_1_joint": 1.0,
-                "wrist_2_joint": 1.0,
-                "wrist_3_joint": 1.0,
-            },
-        )
-    )
+    ros2_interface: UrROS2InterfaceConfig = field(default_factory=UrROS2InterfaceConfig)
 

@@ -21,6 +21,7 @@ from rclpy import qos
 from rclpy.callback_groups import CallbackGroup
 from rclpy.node import Node
 from .config_ur import UrConfig
+from typing import Any
 
 logger = logging.getLogger(__name__)
 
@@ -39,6 +40,7 @@ class NativeJointPositionControl:
         self.config = config
         self._node = node
         self._enabled = False
+        self.pos_cmd_pub = None
 
     def connect(self) -> None:
         self.pos_cmd_pub = self._node.create_publisher(
@@ -75,7 +77,7 @@ class NativeJointPositionControl:
             joint_positions (list[float]): The target positions for the joints.
             unnormalize (bool): Whether to unnormalize the joint positions based on the robot's configuration.
         """
-        if not self.robot_node:
+        if not self._node:
             raise DeviceNotConnectedError("ROS2Interface is not connected. You need to call `connect()`.")
 
         if unnormalize:
