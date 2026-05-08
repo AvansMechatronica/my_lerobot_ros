@@ -17,6 +17,7 @@ Zorg ervoor dat het volgende is geïnstalleerd voordat u begint:
 ## Snelstart
 ### Installatie en setup
 
+
 Stel eerst LeRobot en lerobot-ros in een virtuele omgeving in. Let op: de Python-versie van de virtual environment moet compatibel zijn met uw ROS-versie. Voor ROS 2 Jazzy gebruiken we Python 3.12.
 
 ```bash

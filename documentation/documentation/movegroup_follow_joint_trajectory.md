@@ -1,7 +1,7 @@
 # MoveGroup Follow Joint Trajectory
 
 :::{note}
-Selecteer in de `class UrROS2InterfaceConfig(ROS2InterfaceConfig)` in het `config_ur.py` bestand de ` action_type: ActionType = ActionType.JOINT_POSITION` om deze functionaliteit te gebruiken.
+Selecteer in de `class UrROS2InterfaceConfig(ROS2InterfaceConfig)` in het `config_ur.py` bestand de ` action_type: ActionType = ActionType.MOVEGROUP_FOLLOW_JOINT_TRAJECTORY` om deze functionaliteit te gebruiken.
 :::
 
 ## Real Robot
@@ -30,7 +30,6 @@ Het starten van de teleopratie kan alleen in de virtuele python omgeving van ler
 cd ~/lerobot
 source .venv/bin/activate
 ```
-
 :::
 
 ## Simulation
@@ -52,3 +51,10 @@ lerobot-teleoperate \
   --fps=15
   --robot.ros2_interface.sim=true
 ```
+:::{note}
+Het starten van de teleopratie kan alleen in de virtuele python omgeving van lerobot. Je kunt deze activeren door in een nieuwe terminal te navigeren naar de lerobot directory en het volgende commando uit te voeren:
+```bash
+cd ~/lerobot
+source .venv/bin/activate
+```
+:::
