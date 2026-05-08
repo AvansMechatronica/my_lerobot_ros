@@ -83,5 +83,10 @@ pip install -e lerobot-teleoperator-teachbot
 ```bash
 cd ~/lerobot/my_lerobot_ros
 pip install -e lerobot-robot-ur
+```
 
+#### Instaleer twist teleoperator support
+```bash
+cd ~/lerobot/my_lerobot_ros
+pip install -e lerobot_teleoperator_twist
 ```

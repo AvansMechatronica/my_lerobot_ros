@@ -5,10 +5,9 @@ Selecteer in de `class UrROS2InterfaceConfig(ROS2InterfaceConfig)` in het `confi
 :::
 
 ## Real Robot
-### Start Teachbot
-```bash
-ros2 launch teachbot_ros teachbot_rviz.launch.py
-```
+### Start Teleopertor
+**Not implemented yet*
+
 ### Start UR Robot
 ```bash
 ros2 launch my_ur_bringup real_robot.launch.py initial_joint_controller:=forward_position_controller
@@ -21,7 +20,7 @@ ros2 launch my_ur_bringup move_group.launch.py launch_servo:=true
 ```bash
 lerobot-teleoperate \
   --robot.type=lerobot_robot_ur \
-  --teleop.type=lerobot_teleoperator_teachbot \
+  --teleop.type=lerobot_teleoperator_twist \
   --fps=15
 ```
 :::{note}
@@ -33,10 +32,8 @@ source .venv/bin/activate
 :::
 
 ## Simulation
-### Start Teachbot
-```bash
-ros2 launch teachbot_ros sim_teachbot_rviz.launch.py
-```
+### Start Teleopertor
+**Not implemented yet*
 
 ### Start UR Robot
 ```bash
@@ -47,7 +44,7 @@ ros2 launch my_ur_bringup simulation.launch.py initial_joint_controller:=forward
 ```bash
 lerobot-teleoperate \
   --robot.type=lerobot_robot_ur \
-  --teleop.type=lerobot_teleoperator_teachbot \
+  --teleop.type=keyboard_joint  \
   --fps=15
 ```
 :::{note}
