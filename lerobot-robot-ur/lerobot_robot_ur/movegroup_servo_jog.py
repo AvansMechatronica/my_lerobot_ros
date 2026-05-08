@@ -17,6 +17,7 @@ import logging
 from control_msgs.msg import JointJog
 from sensor_msgs.msg import JointState
 from moveit_msgs.srv import ServoCommandType
+import rclpy
 from rclpy import qos
 from rclpy.callback_groups import CallbackGroup
 from rclpy.node import Node
@@ -41,9 +42,10 @@ class Movegroup2ServoJog:
     ):
         self.config = config
         self._node = node
-        self._frame_id = self.config.frame_id
+        self._frame_id = self.config.base_link
         self._enabled = False   
         self._callback_group = callback_group
+        self._jog_pub = None
 
     def connect(self) -> None:
         self._jog_pub = self._node.create_publisher(
@@ -100,6 +102,8 @@ class Movegroup2ServoJog:
     def send_action(self, action: dict[str, Any], last_joint_state: JointState) -> dict[str, Any]:
         """ calcualte differences between current joint state and target joint state, then send as a jog command  """
         """ calculate velocities for each joint based on the difference and a gain factor, then send as a jog command  """
+        #print("Received action:", action)
+        #print("Current joint state:", last_joint_state)
         time = self._node.get_clock().now()
         dt = (time - self.previous_time).nanoseconds / 1e9
         if dt <= 0.0:
@@ -110,25 +114,43 @@ class Movegroup2ServoJog:
             raise ValueError("Action must contain 'joint_positions' key.")
         current_positions = [getattr(last_joint_state, f"joint{i+1}", 0.0) for i in range(6)]
         target_positions = joint_positions
-        position_differences = [target - current for target, current in zip(target_positions, current_positions)]
+        displacements = [target - current for target, current in zip(target_positions, current_positions)]
+        #print("Position displacements:", displacements)
         """ velocity = position_difference / dt """       
-        velocities = [diff / dt for diff in position_differences]
-        self.jog(linear=velocities[:3], angular=velocities[3:], enable_if_disabled=True)
+        velocities = [diff / dt for diff in displacements]
+        if any(abs(vel) > self.config.max_angular_velocity for vel in velocities):
+            #logger.warning("Calculated velocity exceeds max_angular_velocity, scaling down.")
+            scale = self.config.max_angular_velocity / max(abs(vel) for vel in velocities)
+            velocities = [vel * scale for vel in velocities]
+        #print("Calculated velocities:", velocities)             
+        self.jog(displacements, velocities, dt, enable_if_disabled=True)
 
         self.previous_time = time
 
         return {}
 
-    def jog(self, linear=(0.0, 0.0, 0.0), angular=(0.0, 0.0, 0.0), enable_if_disabled=True):
+    def jog(self, displacements, velocities, duration, enable_if_disabled=True):
         if enable_if_disabled and not self._enabled:
             self.enable()
         self._jog_msg.header.stamp = self._node.get_clock().now().to_msg()
         self._jog_msg.header.frame_id = self._frame_id
-        self._jog_msg.joint_names = [f"joint{i+1}" for i in range(6)]
-        self._jog_msg.velocities = list(linear) + list(angular)
+        self._jog_msg.joint_names = list(self.config.ros2_interface.arm_joint_names)
+        # rosidl conversion expects native Python floats for sequence fields.
+        self._jog_msg.displacements = [float(value) for value in displacements]
+        self._jog_msg.velocities = [float(value) for value in velocities]
+        self._jog_msg.duration = duration 
+        #print("Publishing JointJog message:", self._jog_msg)
         self._jog_pub.publish(self._jog_msg)
 
     def destroy(self) -> None:
-        if self._twist_pub:
-            self._twist_pub.destroy()
-            self._twist_pub = None
+        pub = getattr(self, "_jog_pub", None)
+        if pub is None:
+            return
+
+        try:
+            pub.destroy()
+        except Exception as err:
+            # Avoid teardown crashes if destruction was already requested.
+            logger.debug(f"Ignoring publisher destroy error during shutdown: {err}")
+        finally:
+            self._jog_pub = None

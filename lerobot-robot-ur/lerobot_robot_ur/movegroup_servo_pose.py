@@ -42,7 +42,7 @@ class Movegroup2ServoPose:
         logger.error("Not implemented yet: Movegroup2ServoPose. Please use Movegroup2ServoTwist or Movegroup2ServoJog instead.")
         self.config = config
         self._node = node
-        self._frame_id = self.config.frame_id
+        self._frame_id = self.config.base_link
         self._enabled = False   
         self.callback_group = callback_group
 

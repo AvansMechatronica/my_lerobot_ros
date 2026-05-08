@@ -112,7 +112,6 @@ class NativeJointPositionControl:
         self.pos_cmd_pub.publish(msg)
 
 
-
     def destroy(self) -> None:
         if self.pos_cmd_pub is not None:
             self._node.destroy_publisher(self.pos_cmd_pub)

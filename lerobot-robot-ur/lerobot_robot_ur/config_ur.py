@@ -98,8 +98,15 @@ class ROS2InterfaceConfig:
 
 @dataclass
 class UrROS2InterfaceConfig(ROS2InterfaceConfig):
-    #action_type: ActionType = ActionType.MOVEGROUP_FOLLOW_JOINT_TRAJECTION
-    action_type: ActionType = ActionType.JOINT_POSITION
+    # Uncomment one of the action types below to select the control mode for the UR robot. Make sure to implement the corresponding logic in the ROS2Interface class.
+    #action_type: ActionType = ActionType.CARTESIAN_VELOCITY # Not implemted
+    #action_type: ActionType = ActionType.JOINT_POSITION # Tested: Oke, maar haperend
+    #action_type: ActionType = ActionType.MOVEGROUP_FOLLOW_JOINT_TRAJECTION # Tested: Oke
+    #action_type: ActionType = ActionType.MOVEGROUP_SERVO_TWIST # Not Tested
+    #action_type: ActionType = ActionType.MOVEGROUP_SERVO_POSE # Not Tested
+    action_type: ActionType = ActionType.MOVEGROUP_SERVO_JOG # Not Tested
+
+
 
 @dataclass
 class ROS2Config(RobotConfig):
@@ -112,4 +119,45 @@ class ROS2Config(RobotConfig):
 class UrConfig(ROS2Config):
     """Configuration for the Universal Robots UR5 with ROS 2."""
     ros2_interface: UrROS2InterfaceConfig = field(default_factory=UrROS2InterfaceConfig)
+
+    # Compatibility accessors for controllers that use a flat config API.
+    @property
+    def base_link(self) -> str:
+        return self.ros2_interface.base_link
+
+    @property
+    def frame_id(self) -> str:
+        return self.ros2_interface.base_link
+
+    @property
+    def action_type(self) -> ActionType:
+        return self.ros2_interface.action_type
+
+    @property
+    def servo_delta_joint_cmds(self) -> str:
+        return self.ros2_interface.servo_delta_joint_cmds
+
+    @property
+    def servo_delta_twist_cmds(self) -> str:
+        return self.ros2_interface.servo_delta_twist_cmds
+
+    @property
+    def servo_pause(self) -> str:
+        return self.ros2_interface.servo_pause
+
+    @property
+    def servo_switch_command_type(self) -> str:
+        return self.ros2_interface.servo_switch_command_type
+
+    @property
+    def pose_cmds(self) -> str:
+        return self.ros2_interface.servo_pose_cmds
+
+    @property
+    def max_linear_velocity(self) -> float:
+        return self.ros2_interface.max_linear_velocity
+
+    @property
+    def max_angular_velocity(self) -> float:
+        return self.ros2_interface.max_angular_velocity
 

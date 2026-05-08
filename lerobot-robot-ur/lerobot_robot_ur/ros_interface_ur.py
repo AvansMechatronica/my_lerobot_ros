@@ -138,6 +138,7 @@ class ROS2Interface:
         self.executor_thread.start()
         time.sleep(3)  # Give some time to connect to services and receive messages
 
+        self.ros_control.enable()  # Enable the controller after connection and initial setup
         self.is_connected = True
 
     def send_action(self, action: dict[str, Any]) -> dict[str, Any]:
