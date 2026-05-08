@@ -18,6 +18,11 @@ Welkom bij de Lerobot ROS Repository
 
    documentation/overview.md
    documentation/install.md
+   documentation/movegroup_follow_joint_trajectory.md
+   documentation/joint_position.md
+   documentation/movegroup_servo_jog.md
+   documentation/movegroup_servo_pose.md
+   documentation/movegroup_servo_twist.md 
    documentation/faq.md
 
 
