@@ -3,8 +3,7 @@
 Welkom bij de template voor het maken van `Lerobot ROS` projecten. 
 Deze repository biedt een ROS2-integratie voor het LeRobot-framework, gericht op de Universal Robots (UR) robotarmen en de TOS Teachbot. Hiermee kunnen gebruikers hun UR-robots teleopereren en datasets opnemen met behulp van ROS2-tools en -controllers.
 
-:::
-{warning}
+:::{warning}
 Deze documentatie is nog in ontwikkeling en kan onvolledig zijn.
 Voor de meest recente informatie, zie de officiële documentatie van LeRobot: [LeRobot Documentatie](https://huggingface.co/docs/lerobot/index).
 :::
