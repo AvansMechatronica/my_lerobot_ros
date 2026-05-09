@@ -15,3 +15,16 @@ De `send_action` methode is verantwoordelijk voor het verzenden van de actie com
 ```
 {'shoulder_pan_joint': 0.0, 'shoulder_lift_joint': 0.0, 'elbow_joint': 0.0, 'wrist_1_joint': 0.0, 'wrist_2_joint': 0.0, 'wrist_3_joint': 0.0, 'gripper.pos': 0.0}
 ```
+
+## Gripper controle
+De gripper van de UR robotarm kan worden gecontroleerd door de `gripper.pos` waarde in de actie dictionary aan te passen. 
+
+### Vacuum gripper controle:
+Een waarde van `0.0` betekent dat er geen vacuum wordt toegepast, terwijl een waarde van `1.0` betekent dat er wel vacuum wordt toegepast. 
+
+### Vinger gripper controle:
+Een waarde van `0.0` betekent dat de gripper volledig open is, terwijl een waarde van `100.0` betekent dat de gripper volledig gesloten is.
+
+:::{note}
+**Gripper controller is nog niet geïmplementeerd en is aan Avans studenten om dit verder uit te werken.**
+:::

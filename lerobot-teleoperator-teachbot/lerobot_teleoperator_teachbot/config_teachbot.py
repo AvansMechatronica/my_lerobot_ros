@@ -36,3 +36,4 @@ class TeachbotConfig(TeleoperatorConfig):
         0.0
     ])
     target_joint_state_topic: str = "/joint_states"
+    joint_threshold: float = 30.0  # Set a default threshold value for jointbetween teachbot and robot (in degrees)

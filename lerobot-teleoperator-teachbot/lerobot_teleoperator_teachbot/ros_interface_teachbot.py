@@ -210,7 +210,7 @@ class ROS2Interface:
             #print("No target robot joint positions received yet, allowing teleoperation to be enabled.")
             return False
         
-        threshold_radians = math.radians(20.0)
+        threshold_radians = math.radians(self.config.joint_threshold)  # Convert threshold to radians
         
         # Check if all mapped joints are within threshold
         for i, target_joint_name in enumerate(self.config.target_joint_names):
@@ -232,17 +232,17 @@ class ROS2Interface:
             # If any joint differs by more than threshold, return False
             if position_diff > threshold_radians:
                 logger.debug(
-                    f"Joint '{target_joint_name}' misaligned: robot={target_robot_pos:.3f} rad, "
-                    f"teachbot={teachbot_pos:.3f} rad, offset={joint_offset:.3f} rad, "
-                    f"expected={expected_target_pos:.3f} rad, diff={position_diff:.3f} rad"
+                    f"Joint '{target_joint_name}' misaligned: robot={math.degrees(target_robot_pos):.1f}°, "
+                    f"teachbot={math.degrees(teachbot_pos):.1f}°, offset={math.degrees(joint_offset):.1f}°, "
+                    f"expected={math.degrees(expected_target_pos):.1f}°, diff={math.degrees(position_diff):.1f}°"
                 )
                 print(
                     f"Joint '{target_joint_name}' misaligned: "
-                    f"robot={target_robot_pos:.3f} rad, "
-                    f"teachbot={teachbot_pos:.3f} rad, "
-                    f"offset={joint_offset:.3f} rad, "
-                    f"expected={expected_target_pos:.3f} rad, "
-                    f"diff={position_diff:.3f} rad"
+                    f"robot={math.degrees(target_robot_pos):.1f}°, "
+                    f"teachbot={math.degrees(teachbot_pos):.1f}°, "
+                    f"offset={math.degrees(joint_offset):.1f}°, "
+                    f"expected={math.degrees(expected_target_pos):.1f}°, "
+                    f"diff={math.degrees(position_diff):.1f}°"
                 )
                 return False
         print("All joints are aligned within threshold.")
@@ -255,7 +255,7 @@ class ROS2Interface:
         self.teachbot_btn1 = msg.pistol.btn1
         self.teachbot_btn2 = msg.pistol.btn2
 
-        # Toggle teachbot_enabled on btn1 rising edge, only if joint positions are within ±20 degrees
+        # Toggle teachbot_enabled on btn1 rising edge, only if joint positions are within the configured threshold
         if self.teachbot_btn1 and not self._teachbot_btn1_prev:
             if not self.teachbot_enabled:
                 # Check alignment only when enabling
@@ -263,7 +263,7 @@ class ROS2Interface:
                     self.teachbot_enabled = True
                 else:
                     logger.warning(
-                        "Cannot enable teleoperation: robot joint positions differ from teachbot by more than 20 degrees. "
+                        f"Cannot enable teleoperation: robot joint positions differ from teachbot by more than {self.config.joint_threshold:.1f} degrees. "
                         "Please manually move the robot to match the teachbot position."
                     )
             else:

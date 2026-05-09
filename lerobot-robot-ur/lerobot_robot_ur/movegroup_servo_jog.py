@@ -99,7 +99,7 @@ class Movegroup2ServoJog:
         self._enabled = not (result and result.success)
         return bool(result and result.success)
 
-    def send_action(self, action: dict[str, Any], last_joint_state: JointState) -> dict[str, Any]:
+    def send_action(self, action: dict[str, Any], last_joint_state: dict[str, dict[str, float]] | None) -> dict[str, Any]:
         """ calcualte differences between current joint state and target joint state, then send as a jog command  """
         """ calculate velocities for each joint based on the difference and a gain factor, then send as a jog command  """
         #print("Received action:", action)
@@ -112,7 +112,14 @@ class Movegroup2ServoJog:
         joint_positions = action.get("joint_positions")
         if joint_positions is None:
             raise ValueError("Action must contain 'joint_positions' key.")
-        current_positions = [getattr(last_joint_state, f"joint{i+1}", 0.0) for i in range(6)]
+        if not last_joint_state or "position" not in last_joint_state:
+            logger.warning("Joint state not available yet, skipping jog command.")
+            return {}
+
+        current_positions = [
+            float(last_joint_state["position"].get(joint_name, 0.0))
+            for joint_name in self.config.ros2_interface.arm_joint_names
+        ]
         target_positions = joint_positions
         displacements = [target - current for target, current in zip(target_positions, current_positions)]
         #print("Position displacements:", displacements)

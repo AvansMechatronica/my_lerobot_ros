@@ -77,7 +77,7 @@ class Teachbot(Teleoperator):
         else:
             mapped_action["gripper"] = 0.0  # Default gripper state if not used
 
-        print(f"Mapped action: {mapped_action}")
+        #print(f"Mapped action: {mapped_action}")
         return mapped_action
 
     def send_feedback(self, feedback: dict[str, float]) -> None:
