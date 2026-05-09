@@ -8,6 +8,7 @@ version = "0.0.4"
 description = "🤗 Teleoperators for lerobot"
 readme = "README.md"
 authors = [
+  { name = "Yifei Cheng", email = "ycheng517@gmail.com" },
   { name = "Gerard Harkema", email = "GerardAnneHarkema@gmail.com" },
 ]
 license = { file = "LICENSE" }

@@ -22,8 +22,12 @@ Welkom bij de Lerobot ROS Repository
    documentation/joint_position.md
    documentation/movegroup_servo_jog.md
    documentation/movegroup_servo_pose.md
-   documentation/movegroup_servo_twist.md 
+   documentation/movegroup_servo_twist.md
+   documentation/ur.md
+   documentation/teachbot.md 
+   documentation/gamepad_6dof.md
    documentation/faq.md
+   documentation/references.md
 
 
 License

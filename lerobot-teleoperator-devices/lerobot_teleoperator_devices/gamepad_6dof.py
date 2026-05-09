@@ -95,6 +95,7 @@ class Gamepad6DOFTeleop(Teleoperator):
             gripper_command = self.gamepad.gripper_command()
             action_dict["gripper.pos"] = gripper_command
 
+        #print(f"Gamepad action: {action_dict}")
         return action_dict
 
     def disconnect(self) -> None:

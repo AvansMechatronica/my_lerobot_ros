@@ -74,7 +74,10 @@ class Teachbot(Teleoperator):
         # Optionally add gripper if present
         if self.config.use_gripper and "gripper" in joint_state:
             mapped_action["gripper"] = joint_state["gripper"]
+        else:
+            mapped_action["gripper"] = 0.0  # Default gripper state if not used
 
+        print(f"Mapped action: {mapped_action}")
         return mapped_action
 
     def send_feedback(self, feedback: dict[str, float]) -> None:
