@@ -42,7 +42,6 @@ class Movegroup2ServoJog:
     ):
         self.config = config
         self._node = node
-        self._frame_id = self.config.base_link
         self._enabled = False   
         self._callback_group = callback_group
         self._jog_pub = None
@@ -50,7 +49,7 @@ class Movegroup2ServoJog:
     def connect(self) -> None:
         self._jog_pub = self._node.create_publisher(
             JointJog,
-            self.config.servo_delta_joint_cmds,
+            self.config.ros2_interface.servo_delta_joint_cmds,
             qos.QoSProfile(
                 durability=qos.QoSDurabilityPolicy.VOLATILE,
                 reliability=qos.QoSReliabilityPolicy.RELIABLE,
@@ -59,10 +58,10 @@ class Movegroup2ServoJog:
             callback_group=self._callback_group,
         )
         self._pause_srv = self._node.create_client(
-            SetBool, self.config.servo_pause, callback_group=self._callback_group
+            SetBool, self.config.ros2_interface.servo_pause, callback_group=self._callback_group
         )
         self._cmd_type_srv = self._node.create_client(
-            ServoCommandType, self.config.servo_switch_command_type, callback_group=self._callback_group
+            ServoCommandType, self.config.ros2_interface.servo_switch_command_type, callback_group=self._callback_group
         )
         self._jog_msg = JointJog()
         self._enable_req = SetBool.Request(data=False)
@@ -125,9 +124,9 @@ class Movegroup2ServoJog:
         #print("Position displacements:", displacements)
         """ velocity = position_difference / dt """       
         velocities = [diff / dt for diff in displacements]
-        if any(abs(vel) > self.config.max_angular_velocity for vel in velocities):
+        if any(abs(vel) > self.config.ros2_interface.max_angular_velocity for vel in velocities):
             #logger.warning("Calculated velocity exceeds max_angular_velocity, scaling down.")
-            scale = self.config.max_angular_velocity / max(abs(vel) for vel in velocities)
+            scale = self.config.ros2_interface.max_angular_velocity / max(abs(vel) for vel in velocities)
             velocities = [vel * scale for vel in velocities]
         #print("Calculated velocities:", velocities)             
         self.jog(displacements, velocities, dt, enable_if_disabled=True)
@@ -140,7 +139,7 @@ class Movegroup2ServoJog:
         if enable_if_disabled and not self._enabled:
             self.enable()
         self._jog_msg.header.stamp = self._node.get_clock().now().to_msg()
-        self._jog_msg.header.frame_id = self._frame_id
+        self._jog_msg.header.frame_id = self.config.ros2_interface.base_link    
         self._jog_msg.joint_names = list(self.config.ros2_interface.arm_joint_names)
         # rosidl conversion expects native Python floats for sequence fields.
         self._jog_msg.displacements = [float(value) for value in displacements]

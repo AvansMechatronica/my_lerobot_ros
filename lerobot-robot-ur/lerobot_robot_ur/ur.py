@@ -60,7 +60,7 @@ class Ur(Robot):
         if not self.is_connected:
             raise DeviceNotConnectedError(f"{self} is not connected.")
 
-        if(self.config.action_type in (ActionType.JOINT_POSITION, ActionType.MOVEGROUP_FOLLOW_JOINT_TRAJECTION, ActionType.MOVEGROUP_SERVO_JOG)):
+        if(self.config.ros2_interface.action_type in (ActionType.JOINT_POSITION, ActionType.MOVEGROUP_FOLLOW_JOINT_TRAJECTION, ActionType.MOVEGROUP_SERVO_JOG)):
             # Use lookup_joint_names_from_telop for mapping
             lookup = getattr(self.config.ros2_interface, "lookup_joint_names_from_telop", {})
             offsets = getattr(self.config.ros2_interface, "target_degree_offsets", {})
@@ -84,12 +84,12 @@ class Ur(Robot):
                 joint_positions.append(arm_val)
             #print(f"Mapped joint positions: {joint_positions}")
             self.ros2_interface.send_action({"joint_positions": joint_positions})
-        elif self.config.action_type == ActionType.MOVEGROUP_SERVO_TWIST:
+        elif self.config.ros2_interface.action_type == ActionType.MOVEGROUP_SERVO_TWIST:
             self.ros2_interface.send_action(action)
-        elif self.config.action_type == ActionType.MOVEGROUP_SERVO_POSE:
+        elif self.config.ros2_interface.action_type == ActionType.MOVEGROUP_SERVO_POSE:
             pass
         else:
-            raise ValueError(f"Unsupported action type: {self.config.action_type}")
+            raise ValueError(f"Unsupported action type: {self.config.ros2_interface.action_type}")
 
         #gripper_pos = action["gripper.pos"]
         #self.ros2_interface.send_gripper_command(gripper_pos)
@@ -197,7 +197,7 @@ class Ur(Robot):
 
     @property
     def action_features(self) -> dict[str, type]:
-        if self.config.action_type in (ActionType.MOVEGROUP_SERVO_POSE, ActionType.MOVEGROUP_SERVO_TWIST):
+        if self.config.ros2_interface.action_type in (ActionType.MOVEGROUP_SERVO_POSE, ActionType.MOVEGROUP_SERVO_TWIST):
             return {
                 "linear_x.vel": float,
                 "linear_y.vel": float,
@@ -207,12 +207,12 @@ class Ur(Robot):
                 "angular_z.vel": float,
                 "gripper.pos": float,
             }
-        elif self.config.action_type in (ActionType.JOINT_POSITION, ActionType.MOVEGROUP_FOLLOW_JOINT_TRAJECTION, ActionType.MOVEGROUP_SERVO_JOG):
+        elif self.config.ros2_interface.action_type in (ActionType.JOINT_POSITION, ActionType.MOVEGROUP_FOLLOW_JOINT_TRAJECTION, ActionType.MOVEGROUP_SERVO_JOG):
             return {f"{joint}.pos": float for joint in self.config.ros2_interface.arm_joint_names} | {
                 "gripper.pos": float
             }
         else:
-            raise ValueError(f"Unsupported action type: {self.config.action_type}")
+            raise ValueError(f"Unsupported action type: {self.config.ros2_interface.action_type}")
 
     @property
     def action_features(self) -> dict[str, type]:

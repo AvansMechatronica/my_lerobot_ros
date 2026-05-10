@@ -42,27 +42,26 @@ class Movegroup2ServoPose:
         logger.error("Not implemented yet: Movegroup2ServoPose. Please use Movegroup2ServoTwist or Movegroup2ServoJog instead.")
         self.config = config
         self._node = node
-        self._frame_id = self.config.base_link
         self._enabled = False   
-        self.callback_group = callback_group
+        self._callback_group = callback_group
 
     def connect(self) -> None:
 
         self._pose_pub = self._node.create_publisher(
             PoseStamped,
-            self.config.pose_cmds,
+            self.config.ros2_interface.pose_cmds,
             qos.QoSProfile(
                 durability=qos.QoSDurabilityPolicy.VOLATILE,
                 reliability=qos.QoSReliabilityPolicy.RELIABLE,
                 history=qos.QoSHistoryPolicy.KEEP_ALL,
             ),
-            callback_group=self.callback_group,
+            callback_group=self._callback_group,
         )
         self._pause_srv = self._node.create_client(
-            SetBool, self.config.servo_pause, callback_group=self.callback_group
+            SetBool, self.config.ros2_interface.servo_pause, callback_group=self._callback_group
         )
         self._cmd_type_srv = self._node.create_client(
-            ServoCommandType, self.config.servo_switch_command_type, callback_group=self.callback_group
+            ServoCommandType, self.config.ros2_interface.servo_switch_command_type, callback_group=self._callback_group
         )
         self._pose_msg = PoseStamped()
         self._enable_req = SetBool.Request(data=False)
@@ -109,7 +108,7 @@ class Movegroup2ServoPose:
             logger.warning("Dropping servo command because MoveIt2 Servo is not enabled.")
             return
 
-        self._pose_msg.header.frame_id = self._frame_id
+        self._pose_msg.header.frame_id = self.config.ros2_interface.base_link
         self._pose_msg.header.stamp = self._node.get_clock().now().to_msg()
         self._pose_msg.pose.position.x = float(linear[0])
         self._pose_msg.pose.position.y = float(linear[1])
