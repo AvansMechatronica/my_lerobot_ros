@@ -26,8 +26,8 @@ Welkom bij de Lerobot ROS Repository
    documentation/ur.md
    documentation/teachbot.md 
    documentation/gamepad_6dof.md
-   documentation/faq.md
    documentation/adapting.md
+   documentation/faq.md
    documentation/references.md
 
 
