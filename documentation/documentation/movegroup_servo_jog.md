@@ -15,7 +15,7 @@ ros2 launch my_ur_bringup real_robot.launch.py initial_joint_controller:=forward
 ```
 ### Start MoveGroup
 ```bash
-ros2 launch my_ur_bringup move_group.launch.py launch_servo:=true
+ros2 launch my_ur_bringup movegroup.launch.py launch_servo:=true
 ```
 ### Start teleoperatie
 ```bash

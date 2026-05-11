@@ -37,6 +37,8 @@ class ROS2InterfaceConfig:
     max_linear_velocity: float = 0.10
     # Maximum commanded angular speed in radians/second for Cartesian servo modes.
     max_angular_velocity: float = 0.25
+    # Maximum commanded joint speed in radians/second for MoveIt Servo joint jog mode.
+    max_joint_jog_velocity: float = 5.0
     # UR5/UR10 joint limits in radians (example: UR5)
     min_joint_positions: list[float] = field(default_factory=lambda: [
         -6.283185307179586,  # shoulder_pan_joint

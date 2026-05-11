@@ -87,6 +87,8 @@ pip install -e lerobot-robot-ur
 
 #### Instaleer twist teleoperator support
 ```bash
+pip install pygame
 cd ~/lerobot/my_lerobot_ros
-pip install -e lerobot_teleoperator_twist
+pip install -e lerobot-teleoperator-devices/
+
 ```

@@ -1,6 +1,5 @@
 import logging
 
-import pygame
 from lerobot.teleoperators.gamepad.gamepad_utils import InputController
 
 
@@ -16,6 +15,13 @@ class GamepadController6DOF(InputController):
 
     def start(self):
         """Initialize pygame and the gamepad."""
+        try:
+            import pygame
+        except ModuleNotFoundError as e:
+            raise ModuleNotFoundError(
+                "pygame is required for Gamepad6DOFTeleop. Install it with: pip install pygame"
+            ) from e
+
         pygame.init()
         pygame.joystick.init()
 

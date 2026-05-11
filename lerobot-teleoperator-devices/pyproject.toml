@@ -21,6 +21,7 @@ classifiers = [
 dependencies = [
   "teleop",
   "lerobot>=0.4",
+  "pygame",
 ]
 
 [tool.setuptools.packages.find]

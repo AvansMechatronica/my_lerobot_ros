@@ -268,6 +268,7 @@ class ROS2Interface:
                     )
             else:
                 # Disable without alignment check
+                logger.warning("Disabling teleoperation.\n")
                 self.teachbot_enabled = False
         
         self._teachbot_btn1_prev = self.teachbot_btn1

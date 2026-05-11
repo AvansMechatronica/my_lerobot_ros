@@ -124,9 +124,9 @@ class Movegroup2ServoJog:
         #print("Position displacements:", displacements)
         """ velocity = position_difference / dt """       
         velocities = [diff / dt for diff in displacements]
-        if any(abs(vel) > self.config.ros2_interface.max_angular_velocity for vel in velocities):
-            #logger.warning("Calculated velocity exceeds max_angular_velocity, scaling down.")
-            scale = self.config.ros2_interface.max_angular_velocity / max(abs(vel) for vel in velocities)
+        if any(abs(vel) > self.config.ros2_interface.max_joint_jog_velocity for vel in velocities):
+            #logger.warning("Calculated velocity exceeds max_joint_jog_velocity, scaling down.")
+            scale = self.config.ros2_interface.max_joint_jog_velocity / max(abs(vel) for vel in velocities)
             velocities = [vel * scale for vel in velocities]
         #print("Calculated velocities:", velocities)             
         self.jog(displacements, velocities, dt, enable_if_disabled=True)
