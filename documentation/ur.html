@@ -1,0 +1,173 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="nl" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>class Ur(Robot) &mdash; Lerobot ROS Repository 0.1 documentatie</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
+      <link rel="stylesheet" type="text/css" href="../_static/sphinx-design.min.css?v=95c83b7e" />
+
+  
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=a57088fb"></script>
+      <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+      <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
+      <script src="../_static/copybutton.js?v=f281be69"></script>
+      <script src="../_static/translations.js?v=e4d38c6a"></script>
+      <script src="../_static/design-tabs.js?v=f930bc37"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Zoeken" href="../search.html" />
+    <link rel="next" title="class Teachbot(Teleoperator)" href="teachbot.html" />
+    <link rel="prev" title="MoveGroup Servo Twist" href="movegroup_servo_twist.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            Lerobot ROS Repository
+              <img src="../_static/avans-hogeschool.png" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Zoek in documentatie" aria-label="Zoek in documentatie" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigatiemenu">
+              <p class="caption" role="heading"><span class="caption-text">Inhoudsopgave:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="overview.html">Inleiding</a></li>
+<li class="toctree-l1"><a class="reference internal" href="install.html">Installatie van de Lerobot ROS Repository</a></li>
+<li class="toctree-l1"><a class="reference internal" href="movegroup_follow_joint_trajectory.html">MoveGroup Follow Joint Trajectory</a></li>
+<li class="toctree-l1"><a class="reference internal" href="joint_position.html">Joint Position</a></li>
+<li class="toctree-l1"><a class="reference internal" href="movegroup_servo_jog.html">MoveGroup Servo Jog</a></li>
+<li class="toctree-l1"><a class="reference internal" href="movegroup_servo_pose.html">MoveGroup Servo Pose</a></li>
+<li class="toctree-l1"><a class="reference internal" href="movegroup_servo_twist.html">MoveGroup Servo Twist</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">class Ur(Robot)</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#send-action">send_action()</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#voorbeeld-van-een-actie-dictionary-twist-operatie">Voorbeeld van een actie dictionary (Twist operatie):</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#voorbeeld-van-een-actie-dictionary-joint-positie-operatie">Voorbeeld van een actie dictionary (Joint positie operatie):</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#gripper-controle">Gripper controle</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#vacuum-gripper-controle">Vacuum gripper controle:</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#vinger-gripper-controle">Vinger gripper controle:</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="teachbot.html">class Teachbot(Teleoperator)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="gamepad_6dof.html">class Gamepad6DOFTeleop(Teleoperator)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="adapting.html">Aanpassen voor custom robot types (welke al een ROS2 interface hebben)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="faq.html">Veel gestelde vragen</a></li>
+<li class="toctree-l1"><a class="reference internal" href="references.html">Referenties</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Navigatiemenu voor mobiel" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">Lerobot ROS Repository</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Paginanavigatie">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">class Ur(Robot)</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/documentation/ur.md.txt" rel="nofollow"> Bekijk paginabron</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section class="tex2jax_ignore mathjax_ignore" id="class-ur-robot">
+<h1>class Ur(Robot)<a class="headerlink" href="#class-ur-robot" title="Link to this heading"></a></h1>
+<p>Met deze class wordt een UR robotarm in Lerobot geïmplementeerd die kan worden bestuurd via verschillende teleoperators, zoals de <code class="docutils literal notranslate"><span class="pre">Gamepad6DOFTeleop</span></code> of <code class="docutils literal notranslate"><span class="pre">Teachbot</span></code>. De UR robotarm is een veelzijdige en veelgebruikte robot in de industrie, bekend om zijn precisie en flexibiliteit.</p>
+<section id="send-action">
+<h2>send_action()<a class="headerlink" href="#send-action" title="Link to this heading"></a></h2>
+<p>De <code class="docutils literal notranslate"><span class="pre">send_action</span></code> methode is verantwoordelijk voor het verzenden van de actie commando’s naar de UR robotarm. Afhankelijk van het type controller dat wordt gebruikt (bijvoorbeeld <code class="docutils literal notranslate"><span class="pre">forward_position_controller</span></code>, <code class="docutils literal notranslate"><span class="pre">scaled_joint_trajectory_controller</span></code>, of <code class="docutils literal notranslate"><span class="pre">joint_trajectory_controller</span></code>), zal deze methode de actie commando’s omzetten in het juiste formaat en deze verzenden via ROS2-interfaces. De actie commando’s bevatten informatie over de gewenste lineaire en hoekige bewegingen van de robot, evenals de gripper positie.</p>
+<section id="voorbeeld-van-een-actie-dictionary-twist-operatie">
+<h3>Voorbeeld van een actie dictionary (Twist operatie):<a class="headerlink" href="#voorbeeld-van-een-actie-dictionary-twist-operatie" title="Link to this heading"></a></h3>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">{</span><span class="s1">&#39;linear_x.vel&#39;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">(</span><span class="mf">0.0</span><span class="p">),</span> <span class="s1">&#39;linear_y.vel&#39;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">(</span><span class="mf">0.0</span><span class="p">),</span> <span class="s1">&#39;linear_z.vel&#39;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">(</span><span class="mf">0.0</span><span class="p">),</span> <span class="s1">&#39;angular_x.vel&#39;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">(</span><span class="mf">0.0</span><span class="p">),</span> <span class="s1">&#39;angular_y.vel&#39;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">(</span><span class="mf">0.0</span><span class="p">),</span> <span class="s1">&#39;angular_z.vel&#39;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">(</span><span class="mf">0.0</span><span class="p">),</span> <span class="s1">&#39;gripper.pos&#39;</span><span class="p">:</span> <span class="mf">0.0</span><span class="p">}</span>
+</pre></div>
+</div>
+</section>
+<section id="voorbeeld-van-een-actie-dictionary-joint-positie-operatie">
+<h3>Voorbeeld van een actie dictionary (Joint positie operatie):<a class="headerlink" href="#voorbeeld-van-een-actie-dictionary-joint-positie-operatie" title="Link to this heading"></a></h3>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">{</span><span class="s1">&#39;shoulder_pan_joint&#39;</span><span class="p">:</span> <span class="mf">0.0</span><span class="p">,</span> <span class="s1">&#39;shoulder_lift_joint&#39;</span><span class="p">:</span> <span class="mf">0.0</span><span class="p">,</span> <span class="s1">&#39;elbow_joint&#39;</span><span class="p">:</span> <span class="mf">0.0</span><span class="p">,</span> <span class="s1">&#39;wrist_1_joint&#39;</span><span class="p">:</span> <span class="mf">0.0</span><span class="p">,</span> <span class="s1">&#39;wrist_2_joint&#39;</span><span class="p">:</span> <span class="mf">0.0</span><span class="p">,</span> <span class="s1">&#39;wrist_3_joint&#39;</span><span class="p">:</span> <span class="mf">0.0</span><span class="p">,</span> <span class="s1">&#39;gripper.pos&#39;</span><span class="p">:</span> <span class="mf">0.0</span><span class="p">}</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="gripper-controle">
+<h2>Gripper controle<a class="headerlink" href="#gripper-controle" title="Link to this heading"></a></h2>
+<p>De gripper van de UR robotarm kan worden gecontroleerd door de <code class="docutils literal notranslate"><span class="pre">gripper.pos</span></code> waarde in de actie dictionary aan te passen.</p>
+<section id="vacuum-gripper-controle">
+<h3>Vacuum gripper controle:<a class="headerlink" href="#vacuum-gripper-controle" title="Link to this heading"></a></h3>
+<p>Een waarde van <code class="docutils literal notranslate"><span class="pre">0.0</span></code> betekent dat er geen vacuum wordt toegepast, terwijl een waarde van <code class="docutils literal notranslate"><span class="pre">1.0</span></code> betekent dat er wel vacuum wordt toegepast.</p>
+</section>
+<section id="vinger-gripper-controle">
+<h3>Vinger gripper controle:<a class="headerlink" href="#vinger-gripper-controle" title="Link to this heading"></a></h3>
+<p>Een waarde van <code class="docutils literal notranslate"><span class="pre">0.0</span></code> betekent dat de gripper volledig open is, terwijl een waarde van <code class="docutils literal notranslate"><span class="pre">100.0</span></code> betekent dat de gripper volledig gesloten is.</p>
+<div class="admonition note">
+<p class="admonition-title">Notitie</p>
+<p><strong>Gripper controller is nog niet geïmplementeerd en is aan Avans studenten om dit verder uit te werken.</strong></p>
+</div>
+</section>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Voettekst">
+        <a href="movegroup_servo_twist.html" class="btn btn-neutral float-left" title="MoveGroup Servo Twist" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Vorige</a>
+        <a href="teachbot.html" class="btn btn-neutral float-right" title="class Teachbot(Teleoperator)" accesskey="n" rel="next">Volgende <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright Gerard Harkema.</p>
+  </div>
+
+  Gebouwd met <a href="https://www.sphinx-doc.org/">Sphinx</a> met een
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">thema</a>
+    geleverd door <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

@@ -1,0 +1,218 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="nl" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MoveGroup Follow Joint Trajectory &mdash; Lerobot ROS Repository 0.1 documentatie</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
+      <link rel="stylesheet" type="text/css" href="../_static/sphinx-design.min.css?v=95c83b7e" />
+
+  
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=a57088fb"></script>
+      <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+      <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
+      <script src="../_static/copybutton.js?v=f281be69"></script>
+      <script src="../_static/translations.js?v=e4d38c6a"></script>
+      <script src="../_static/design-tabs.js?v=f930bc37"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Zoeken" href="../search.html" />
+    <link rel="next" title="Joint Position" href="joint_position.html" />
+    <link rel="prev" title="Installatie van de Lerobot ROS Repository" href="install.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            Lerobot ROS Repository
+              <img src="../_static/avans-hogeschool.png" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Zoek in documentatie" aria-label="Zoek in documentatie" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigatiemenu">
+              <p class="caption" role="heading"><span class="caption-text">Inhoudsopgave:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="overview.html">Inleiding</a></li>
+<li class="toctree-l1"><a class="reference internal" href="install.html">Installatie van de Lerobot ROS Repository</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">MoveGroup Follow Joint Trajectory</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#real-robot">Real Robot</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#start-teachbot">Start Teachbot</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#start-ur-robot">Start UR Robot</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#start-movegroup">Start MoveGroup</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#start-teleoperatie">Start teleoperatie</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#simulation">Simulation</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#id1">Start Teachbot</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id2">Start UR Robot</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id3">Start teleoperatie</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="joint_position.html">Joint Position</a></li>
+<li class="toctree-l1"><a class="reference internal" href="movegroup_servo_jog.html">MoveGroup Servo Jog</a></li>
+<li class="toctree-l1"><a class="reference internal" href="movegroup_servo_pose.html">MoveGroup Servo Pose</a></li>
+<li class="toctree-l1"><a class="reference internal" href="movegroup_servo_twist.html">MoveGroup Servo Twist</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ur.html">class Ur(Robot)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="teachbot.html">class Teachbot(Teleoperator)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="gamepad_6dof.html">class Gamepad6DOFTeleop(Teleoperator)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="adapting.html">Aanpassen voor custom robot types (welke al een ROS2 interface hebben)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="faq.html">Veel gestelde vragen</a></li>
+<li class="toctree-l1"><a class="reference internal" href="references.html">Referenties</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Navigatiemenu voor mobiel" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">Lerobot ROS Repository</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Paginanavigatie">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">MoveGroup Follow Joint Trajectory</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/documentation/movegroup_follow_joint_trajectory.md.txt" rel="nofollow"> Bekijk paginabron</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section class="tex2jax_ignore mathjax_ignore" id="movegroup-follow-joint-trajectory">
+<h1>MoveGroup Follow Joint Trajectory<a class="headerlink" href="#movegroup-follow-joint-trajectory" title="Link to this heading"></a></h1>
+<div class="admonition note">
+<p class="admonition-title">Notitie</p>
+<p>Selecteer in de <code class="docutils literal notranslate"><span class="pre">class</span> <span class="pre">UrROS2InterfaceConfig(ROS2InterfaceConfig)</span></code> in het <code class="docutils literal notranslate"><span class="pre">config_ur.py</span></code> bestand de <code class="docutils literal notranslate"> <span class="pre">action_type:</span> <span class="pre">ActionType</span> <span class="pre">=</span> <span class="pre">ActionType.MOVEGROUP_FOLLOW_JOINT_TRAJECTORY</span></code> om deze functionaliteit te gebruiken.</p>
+</div>
+<section id="real-robot">
+<h2>Real Robot<a class="headerlink" href="#real-robot" title="Link to this heading"></a></h2>
+<section id="start-teachbot">
+<h3>Start Teachbot<a class="headerlink" href="#start-teachbot" title="Link to this heading"></a></h3>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>ros2<span class="w"> </span>launch<span class="w"> </span>teachbot_ros<span class="w"> </span>teachbot_rviz.launch.py
+</pre></div>
+</div>
+</section>
+<section id="start-ur-robot">
+<h3>Start UR Robot<a class="headerlink" href="#start-ur-robot" title="Link to this heading"></a></h3>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>ros2<span class="w"> </span>launch<span class="w"> </span>my_ur_bringup<span class="w"> </span>real_robot.launch.py<span class="w"> </span>
+</pre></div>
+</div>
+</section>
+<section id="start-movegroup">
+<h3>Start MoveGroup<a class="headerlink" href="#start-movegroup" title="Link to this heading"></a></h3>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>ros2<span class="w"> </span>launch<span class="w"> </span>my_ur_bringup<span class="w"> </span>move_group.launch.py<span class="w"> </span>
+</pre></div>
+</div>
+</section>
+<section id="start-teleoperatie">
+<h3>Start teleoperatie<a class="headerlink" href="#start-teleoperatie" title="Link to this heading"></a></h3>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>lerobot-teleoperate<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--robot.type<span class="o">=</span>lerobot_robot_ur<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--teleop.type<span class="o">=</span>lerobot_teleoperator_teachbot<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--fps<span class="o">=</span><span class="m">15</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Notitie</p>
+<p>Het starten van de teleopratie kan alleen in de virtuele python omgeving van lerobot. Je kunt deze activeren door in een nieuwe terminal te navigeren naar de lerobot directory en het volgende commando uit te voeren:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">cd</span><span class="w"> </span>~/lerobot
+<span class="nb">source</span><span class="w"> </span>.venv/bin/activate
+</pre></div>
+</div>
+</div>
+</section>
+</section>
+<section id="simulation">
+<h2>Simulation<a class="headerlink" href="#simulation" title="Link to this heading"></a></h2>
+<section id="id1">
+<h3>Start Teachbot<a class="headerlink" href="#id1" title="Link to this heading"></a></h3>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>ros2<span class="w"> </span>launch<span class="w"> </span>teachbot_ros<span class="w"> </span>sim_teachbot_rviz.launch.py
+</pre></div>
+</div>
+</section>
+<section id="id2">
+<h3>Start UR Robot<a class="headerlink" href="#id2" title="Link to this heading"></a></h3>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>ros2<span class="w"> </span>launch<span class="w"> </span>my_ur_bringup<span class="w"> </span>simulation.launch.py
+</pre></div>
+</div>
+</section>
+<section id="id3">
+<h3>Start teleoperatie<a class="headerlink" href="#id3" title="Link to this heading"></a></h3>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>lerobot-teleoperate<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--robot.type<span class="o">=</span>lerobot_robot_ur<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--teleop.type<span class="o">=</span>lerobot_teleoperator_teachbot<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--fps<span class="o">=</span><span class="m">15</span>
+<span class="w">  </span>--robot.ros2_interface.sim<span class="o">=</span><span class="nb">true</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Notitie</p>
+<p>Het starten van de teleopratie kan alleen in de virtuele python omgeving van lerobot. Je kunt deze activeren door in een nieuwe terminal te navigeren naar de lerobot directory en het volgende commando uit te voeren:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">cd</span><span class="w"> </span>~/lerobot
+<span class="nb">source</span><span class="w"> </span>.venv/bin/activate
+</pre></div>
+</div>
+</div>
+</section>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Voettekst">
+        <a href="install.html" class="btn btn-neutral float-left" title="Installatie van de Lerobot ROS Repository" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Vorige</a>
+        <a href="joint_position.html" class="btn btn-neutral float-right" title="Joint Position" accesskey="n" rel="next">Volgende <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright Gerard Harkema.</p>
+  </div>
+
+  Gebouwd met <a href="https://www.sphinx-doc.org/">Sphinx</a> met een
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">thema</a>
+    geleverd door <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
