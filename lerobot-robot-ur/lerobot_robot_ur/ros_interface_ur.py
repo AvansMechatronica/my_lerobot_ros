@@ -109,6 +109,11 @@ class ROS2Interface:
 
 
     def connect(self) -> None:
+## print toegevoegd
+        # print("ARM JOINT NAMES BEGIN:")
+        # print(self.config.ros2_interface.arm_joint_names)
+        
+        
         if not rclpy.ok():
             rclpy.init()
 
@@ -124,12 +129,19 @@ class ROS2Interface:
 
         self.ros_control.connect()
 
-        self.joint_state_sub = self.robot_node.create_subscription(
+        self.arm_joint_state_sub = self.robot_node.create_subscription(
             JointState,
             "/joint_states",
             self._joint_state_callback,
             10,
         )
+# zelf toegevoegd
+        self.gripper_joint_state_sub = self.robot_node.create_subscription(
+            JointState,
+            "/robotiq_gripper_controller/joint_states",
+            self._gripper_state_callback,
+            10,
+        )     
 
         # Create and start the executor in a separate thread
         self.executor = SingleThreadedExecutor()
@@ -141,6 +153,9 @@ class ROS2Interface:
         self.ros_control.enable()  # Enable the controller after connection and initial setup
         self.is_connected = True
 
+        # print("ARM JOINT NAMES END:")
+        # print(self.config.ros2_interface.arm_joint_names)
+
     def send_action(self, action: dict[str, Any]) -> dict[str, Any]:
         if not self.is_connected:
             raise DeviceNotConnectedError("ROS2Interface is not connected. Call connect() before sending actions.")
@@ -151,29 +166,59 @@ class ROS2Interface:
         """Get the last received joint state."""
         return self._last_joint_state
 
-    def _joint_state_callback(self, msg: "JointState") -> None:
-        #print(f"Received joint state: {msg}")
-        self._last_joint_state = self._last_joint_state or {}
-        positions = {}
-        velocities = {}
-        name_to_index = {name: i for i, name in enumerate(msg.name)}
-        for joint_name in self.config.ros2_interface.arm_joint_names:
-            idx = name_to_index.get(joint_name)
-            if idx is None:
-                raise ValueError(f"Joint '{joint_name}' not found in joint state.")
-            positions[joint_name] = msg.position[idx]
-            # Keep velocity at zero for now; we currently read only positions.
-            velocities[joint_name] = 0.0
+# #zelf aangemaakt
+    def _gripper_state_callback(self, msg):
+        self._last_joint_state = self._last_joint_state or {
+            "position": {},
+            "velocity": {},
+        }
 
-        self._last_joint_state["position"] = positions
-        self._last_joint_state["velocity"] = velocities
+        if len(msg.position) > 0:
+            self._last_joint_state["position"]["gripper_joint"] = msg.position[0]
+
+
+    def _joint_state_callback(self, msg: "JointState") -> None:
+        # print(f"Received joint state: {msg}")
+        self._last_joint_state = self._last_joint_state or {
+            "position": {},
+            "velocity": {},
+        }
+        
+        name_to_index = {name: i for i, name in enumerate(msg.name)}
+        
+        for joint_name in self.config.ros2_interface.arm_joint_names:
+            # print("LOOKING FOR:", joint_name)
+            idx = name_to_index.get(joint_name)
+            # print("IDX:", idx)     
+            # if idx is None:
+            #     raise ValueError(f"Joint '{joint_name}' not found in joint state.")
+            if idx is None:
+                # print("NOT FOUND:", joint_name)
+                continue
+            
+            self._last_joint_state["position"][joint_name] = msg.position[idx]
+            self._last_joint_state["velocity"][joint_name] = 0.0
+            
+            # positions[joint_name] = msg.position[idx]
+        # Keep velocity at zero for now; we currently read only positions.
+            # velocities[joint_name] = 0.0
+
+        # self._last_joint_state["position"] = positions
+        # self._last_joint_state["velocity"] = velocities
+
+        # print(self._last_joint_state)
+     
         #print(f"Updated joint state: {self._last_joint_state}")
 
     def disconnect(self):
 
-        if self.joint_state_sub:
-            self.joint_state_sub.destroy()
-            self.joint_state_sub = None
+        if self.arm_joint_state_sub:
+            self.arm_joint_state_sub.destroy()
+            self.arm_joint_state_sub = None
+
+        if self.gripper_joint_state_sub:
+            self.gripper_joint_state_sub.destroy()
+            self.gripper_joint_state_sub = None
 
         if self.ros_control:
             self.ros_control.destroy()
