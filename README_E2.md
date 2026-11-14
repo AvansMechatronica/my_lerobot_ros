@@ -111,6 +111,33 @@ lerobot-teleoperate \
   --fps=75
 ```
 
+#### Actietype kiezen
+
+Het actietype bepaalt hoe de UR-robot de commando's verwerkt. De standaardwaarde in `UrROS2InterfaceConfig` is `movegroup_servo_jog`. Je kunt de waarde aanpassen in `lerobot-robot-ur/lerobot_robot_ur/config_ur.py` of als optie meegeven aan `lerobot-teleoperate`:
+
+```bash
+lerobot-teleoperate \
+  --robot.type=lerobot_robot_ur \
+  --robot.ros2_interface.action_type=movegroup_servo_twist \
+  --teleop.type=gamepad_6dof \
+  --fps=15
+```
+
+Gebruik voor `movegroup_servo_twist` een teleoperator die lineaire en hoek-snelheden aanlevert. De Teachbot-teleoperator levert joint-posities aan en is daarom niet compatibel met deze twist-modus. Gebruik voor de Teachbot de standaardmodus `movegroup_servo_jog`.
+
+De beschikbare waarden zijn:
+
+| Waarde | Beschrijving | Status |
+| --- | --- | --- |
+| `movegroup_servo_jog` | Beweegt via MoveIt Servo met joint-jog-commando's. | Standaard; geschikt voor de Teachbot. |
+| `movegroup_servo_twist` | Beweegt via MoveIt Servo met lineaire en hoek-snelheden. | Beschikbaar; vereist een teleoperator die twist-commando's levert. |
+| `movegroup_follow_joint_trajectory` | Stuurt joint-trajecten naar de trajectory-controller. | Beschikbaar. |
+| `joint_position` | Stuurt joint-posities naar de position-controller. | Beschikbaar. |
+| `movegroup_servo_pose` | Bedoeld voor MoveIt Servo pose-commando's. | Gedeeltelijk; de UR-actieafhandeling is nog niet geïmplementeerd. |
+| `cartesian_velocity` | Bedoeld voor Cartesian velocity-commando's. | Niet geïmplementeerd. |
+| `none` | Selecteert geen ROS-control-backend. | Niet bruikbaar voor teleoperatie. |
+
+
 ## Dataset maken
 
 1. Controleer het cameratype met `lerobot-find-cameras`.
