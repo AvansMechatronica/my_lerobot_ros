@@ -8,15 +8,14 @@ Deze documentatie is nog in ontwikkeling en kan onvolledig zijn.
 Voor de meest recente informatie, zie de officiële documentatie van LeRobot: [LeRobot Documentatie](https://huggingface.co/docs/lerobot/index).
 :::
 
-:::{info}
+:::{admonition} Informatie
 * Lerobot: Teleoperatie, training en uitrol vindt plaats vanuit de command-line interface. Zie de officiële documentatie voor meer details.
 * LeLab: Teleoperatie, training en uitrol vindt plaats via de grafische interface. 
-
 
 :::
 
 ## Officiële Lerobot Documentatie
-Voor meer informatie over het LeRobot-framework, bezoek de officiële website: [LeRobot](https://huggingface.co/docs/lerobot/index).`
+Voor meer informatie over het LeRobot-framework, bezoek de officiële website: [LeRobot](https://huggingface.co/docs/lerobot/index).
 
 ## Avans LeLab Documentatie
 Voor meer informatie over het LeLab-framework, bezoek de website: 
@@ -50,9 +49,9 @@ Zie voor meer informatie over deze taken de officiële documentatie van Lerobot:
 * [run inference and evaluate your policy](https://huggingface.co/docs/lerobot/il_robots#run-inference-and-evaluate-your-policy)
 
     
-## Dank aan Yifei Cheng
-Deze ROS2-integratie is mede mogelijk gemaakt door de inspiratie van Yifei Cheng's werk aan [lerobot-ros](https://github.com/ycheng517/lerobot-ros)
+## Thanks to Yifei Cheng
+This ROS 2 integration was inspired in part by Yifei Cheng's work on [lerobot-ros](https://github.com/ycheng517/lerobot-ros)
 
 
-## Dank aan Nicolas Rabault
-Deze ROS2-integratie voor LeLab is mede mogelijk gemaakt door de inspiratie van Nicolas Rabault's aan [Lelab-hackathon](https://www.linkedin.com/posts/nicolas-rabault-_lerobot-hackathon-lerobot-ugcPost-7341065019368828930-jTnl/)
+## Thanks to Nicolas Rabault and his team
+This ROS 2 integration for LeLab was inspired in part by Nicolas Rabault's work on the [LeLab hackathon](https://www.linkedin.com/posts/nicolas-rabault-_lerobot-hackathon-lerobot-ugcPost-7341065019368828930-jTnl/)
