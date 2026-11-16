@@ -1,6 +1,6 @@
 # Inleiding
 
-Welkom bij de template voor het maken van `Lerobot ROS` projecten. 
+Welkom bij de template voor het maken van `Lerobot/LeLab ROS` projecten. 
 Deze repository biedt een ROS2-integratie voor het LeRobot-framework, gericht op de Universal Robots (UR) robotarmen en de TOS Teachbot. Hiermee kunnen gebruikers hun UR-robots teleopereren en datasets opnemen met behulp van ROS2-tools en -controllers.
 
 :::{warning}
@@ -8,8 +8,26 @@ Deze documentatie is nog in ontwikkeling en kan onvolledig zijn.
 Voor de meest recente informatie, zie de officiële documentatie van LeRobot: [LeRobot Documentatie](https://huggingface.co/docs/lerobot/index).
 :::
 
+:::{info}
+* Lerobot: Teleoperatie, training en uitrol vindt plaats vanuit de command-line interface. Zie de officiële documentatie voor meer details.
+* LeLab: Teleoperatie, training en uitrol vindt plaats via de grafische interface. 
+
+
+:::
+
 ## Officiële Lerobot Documentatie
 Voor meer informatie over het LeRobot-framework, bezoek de officiële website: [LeRobot](https://huggingface.co/docs/lerobot/index).`
+
+## Avans LeLab Documentatie
+Voor meer informatie over het LeLab-framework, bezoek de website: 
+[LeLab](https://github.com/AvansMechatronica/my_leLab).
+
+## Officiële LeLab Documentatie
+Voor meer informatie over het LeLab-framework, bezoek de officiële website: [LeLab](https://github.com/huggingface/leLab).
+
+:::{note}
+Alleen in de Avans LeLab setup zijn controllers voor de UR5 en teachbot beschikbaar.
+:::
 
 ## Actiontypes en controllers
 De volgende action types worden ondersteund in de `UrROS2Interface`. Deze zijn specefiek voor manipulator armen
@@ -34,3 +52,7 @@ Zie voor meer informatie over deze taken de officiële documentatie van Lerobot:
     
 ## Dank aan Yifei Cheng
 Deze ROS2-integratie is mede mogelijk gemaakt door de inspiratie van Yifei Cheng's werk aan [lerobot-ros](https://github.com/ycheng517/lerobot-ros)
+
+
+## Dank aan Nicolas Rabault
+Deze ROS2-integratie voor LeLab is mede mogelijk gemaakt door de inspiratie van Nicolas Rabault's aan [Lelab-hackathon](https://www.linkedin.com/posts/nicolas-rabault-_lerobot-hackathon-lerobot-ugcPost-7341065019368828930-jTnl/)

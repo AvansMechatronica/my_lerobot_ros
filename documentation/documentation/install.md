@@ -64,6 +64,7 @@ Informatie over LeLab software kan gevonden worden op de [my_leLab documentatiep
 :::{tab-item} Zonder GIT-repository support
 
 ```bash
+cd ~/lerobot
 git clone https://github.com/AvansMechatronica/my_lerobot_ros.git
 ```
 

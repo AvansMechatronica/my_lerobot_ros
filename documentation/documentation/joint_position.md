@@ -1,7 +1,9 @@
 # Joint Position
 
 :::{note}
-Selecteer in de `class UrROS2InterfaceConfig(ROS2InterfaceConfig)` in het `config_ur.py` bestand de ` action_type: ActionType = ActionType.JOINT_POSITION` om deze functionaliteit te gebruiken.
+Selecteer in `UrROS2InterfaceConfig` in `config_ur.py` de
+`action_type: ActionType = ActionType.JOINT_POSITION` om deze functionaliteit te
+gebruiken. Dit geldt ook voor LeLab.
 :::
 
 ## Real Robot
@@ -31,17 +33,21 @@ lerobot-teleoperate \
   --teleop.type=lerobot_teleoperator_teachbot \
   --fps=15
 ```
+:::
+
 :::{tab-item} LeLab
 ```bash
-lelab
+leLab
 ```
-In de gebruikersinterface van LeLab kun je de teleoperatie starten door de juiste robot en teleoperator te selecteren.
+Selecteer in LeLab **Universal Robot (ROS 2)** en **Teachbot (ROS 2)** bij de apparaatinstellingen en start daarna de teleoperatie.
 :::
 ::::
 :::::
 
 :::{note}
-Het starten van de teleopratie kan alleen in de virtuele python omgeving van lerobot. Je kunt deze activeren door in een nieuwe terminal te navigeren naar de lerobot directory en het volgende commando uit te voeren:
+Start de teleoperatie vanuit de virtuele Python-omgeving waarin LeRobot of
+LeLab en de ROS-integraties zijn geïnstalleerd. Voor de installatie zoals
+beschreven in deze documentatie:
 ```bash
 cd ~/lerobot
 source .venv/bin/activate
@@ -72,17 +78,21 @@ lerobot-teleoperate \
   --teleop.type=lerobot_teleoperator_teachbot \
   --fps=15
 ```
+:::
+
 :::{tab-item} LeLab
 ```bash
-lelab
+leLab
 ```
-In de gebruikersinterface van LeLab kun je de teleoperatie starten door de juiste robot en teleoperator te selecteren.
+Selecteer in LeLab **Universal Robot (ROS 2)** en **Teachbot (ROS 2)** bij de apparaatinstellingen en start daarna de teleoperatie.
 :::
 ::::
 :::::
 
 :::{note}
-Het starten van de teleopratie kan alleen in de virtuele python omgeving van lerobot/lelab. Je kunt deze activeren door in een nieuwe terminal te navigeren naar de lerobot directory en het volgende commando uit te voeren:
+Start de teleoperatie vanuit de virtuele Python-omgeving waarin LeRobot of
+LeLab en de ROS-integraties zijn geïnstalleerd. Voor de installatie zoals
+beschreven in deze documentatie:
 ```bash
 cd ~/lerobot
 source .venv/bin/activate
