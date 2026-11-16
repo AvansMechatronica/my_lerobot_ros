@@ -19,12 +19,27 @@ ros2 launch my_ur_bringup real_robot.launch.py initial_joint_controller:=forward
 ros2 launch my_ur_bringup move_group.launch.py 
 ```
 ### Start teleoperatie
+:::::{card} 
+
+::::{tab-set}
+
+
+:::{tab-item} Lerobot
 ```bash
 lerobot-teleoperate \
   --robot.type=lerobot_robot_ur \
   --teleop.type=lerobot_teleoperator_teachbot \
   --fps=15
 ```
+:::{tab-item} LeLab
+```bash
+lelab
+```
+In de gebruikersinterface van LeLab kun je de teleoperatie starten door de juiste robot en teleoperator te selecteren.
+:::
+::::
+:::::
+
 :::{note}
 Het starten van de teleopratie kan alleen in de virtuele python omgeving van lerobot. Je kunt deze activeren door in een nieuwe terminal te navigeren naar de lerobot directory en het volgende commando uit te voeren:
 ```bash
@@ -45,14 +60,29 @@ ros2 launch my_ur_bringup simulation.launch.py initial_joint_controller:=forward
 ```
 
 ### Start teleoperatie
+:::::{card} 
+
+::::{tab-set}
+
+
+:::{tab-item} Lerobot
 ```bash
 lerobot-teleoperate \
   --robot.type=lerobot_robot_ur \
   --teleop.type=lerobot_teleoperator_teachbot \
   --fps=15
 ```
+:::{tab-item} LeLab
+```bash
+lelab
+```
+In de gebruikersinterface van LeLab kun je de teleoperatie starten door de juiste robot en teleoperator te selecteren.
+:::
+::::
+:::::
+
 :::{note}
-Het starten van de teleopratie kan alleen in de virtuele python omgeving van lerobot. Je kunt deze activeren door in een nieuwe terminal te navigeren naar de lerobot directory en het volgende commando uit te voeren:
+Het starten van de teleopratie kan alleen in de virtuele python omgeving van lerobot/lelab. Je kunt deze activeren door in een nieuwe terminal te navigeren naar de lerobot directory en het volgende commando uit te voeren:
 ```bash
 cd ~/lerobot
 source .venv/bin/activate

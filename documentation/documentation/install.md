@@ -1,4 +1,4 @@
-# Installatie van de Lerobot ROS Repository
+# Installatie van de Lerobot/LeLab ROS Repository
 
 ## Vereisten
 
@@ -12,7 +12,7 @@ Zorg ervoor dat het volgende is geïnstalleerd voordat u begint:
 - [Teachbot ROS software](https://avansmechatronica.github.io/teachbot/)
 
 
-## Installatie en setup Lerobot
+## Installatie en setup Lerobot/LeLab
 
 Stel eerst LeRobot en lerobot-ros in een virtuele omgeving in. Let op: de Python-versie van de virtual environment moet compatibel zijn met uw ROS-versie. Voor ROS 2 Jazzy gebruiken we Python 3.12.
 
@@ -25,13 +25,36 @@ mkdir ~/lerobot
 cd ~/lerobot
 python3 -m venv .venv
 source .venv/bin/activate
+```
+:::::{card} 
 
+::::{tab-set}
+
+
+:::{tab-item} Lerobot
 # Installeer LeRobot software
+```bash
 git clone https://github.com/huggingface/lerobot.git
 cd lerobot
 pip install -e .
-
 ```
+:::
+
+:::{tab-item} LeLab
+# Installeer LeLab software
+```bash
+git clone https://github.com/AvansMechatronica/my_leLab
+cd my_leLab
+pip install -e .
+```
+Informatie over LeLab software kan gevonden worden op de [my_leLab documentatiepagina](https://github.com/AvansMechatronica/my_leLab).
+
+:::
+
+::::
+
+:::::
+
 ## Installatie en setup Lerobot ROS integraties
 :::::{card} 
 
