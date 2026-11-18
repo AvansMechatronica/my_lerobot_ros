@@ -22,9 +22,15 @@ Start de onderdelen in vijf afzonderlijke terminals.
 
 Controleer of de joint angles ongeveer overeenkomen met `-8, 106, -72, -25, 10, -7`.
 
+Met RVIZ
 ```bash
 ros2 launch teachbot_ros teachbot_rviz.launch.py
 ```
+Zonder RVIZ
+```bash
+ros2 launch teachbot_ros teachbot_rviz.launch.py rviz:=false
+```
+
 
 #### Teachbot-informatie controleren
 
@@ -66,8 +72,16 @@ ros2 topic echo /joint_states
 
 ### 3. MoveGroup starten
 
+Met RVIZ
+
 ```bash
 ros2 launch my_ur_bringup movegroup.launch.py launch_servo:=true
+```
+
+Zonder RVIZ
+
+```bash
+ros2 launch my_ur_bringup movegroup.launch.py launch_servo:=true launch_rviz:=false
 ```
 
 ### 4. Robotiq-gripper starten
