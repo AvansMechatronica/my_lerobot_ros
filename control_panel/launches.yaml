@@ -1,0 +1,35 @@
+# ROS 2 Launch Configuratie
+# Vul hier de launches in die je wilt gebruiken
+
+launches:
+  - name: "Teachbot"
+    package: "teachbot_ros"
+    launch_file: "teachbot_rviz.launch.py"
+    arguments: ""
+    rviz_argument: "rviz"
+    rviz_enabled: true
+    description: "Start Teachbot (RViz aan/uit toggleable)"
+
+  - name: "UR-robot"
+    package: "my_ur_bringup"
+    launch_file: "real_robot.launch.py"
+    arguments: "initial_joint_controller:=forward_position_controller"
+    rviz_argument: ""
+    rviz_enabled: false
+    description: "Start de UR-robot (verbind eerst met WiFi TP-Link_84B8)"
+
+  - name: "MoveGroup (met Servo)"
+    package: "my_ur_bringup"
+    launch_file: "movegroup.launch.py"
+    arguments: "launch_servo:=true"
+    rviz_argument: "launch_rviz"
+    rviz_enabled: true
+    description: "Start MoveGroup met Servo (RViz aan/uit toggleable)"
+
+  - name: "Robotiq-gripper"
+    package: "my_robotiq_controller"
+    launch_file: "robotiq_controller.launch.py"
+    arguments: ""
+    rviz_argument: ""
+    rviz_enabled: false
+    description: "Start de Robotiq-gripper controller"
