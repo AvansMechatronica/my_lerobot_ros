@@ -1,0 +1,505 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="nl" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MoveGroup-besturingsmodi &mdash; Lerobot ROS Repository 0.1 documentatie</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
+      <link rel="stylesheet" type="text/css" href="../_static/sphinx-design.min.css?v=6a604523" />
+
+  
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=a57088fb"></script>
+      <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+      <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
+      <script src="../_static/copybutton.js?v=f281be69"></script>
+      <script src="../_static/translations.js?v=e4d38c6a"></script>
+      <script data-sd-tabs-storage-prefix="sphinx-design-tab-id-" src="../_static/design-tabs.js?v=fcb327ea"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Zoeken" href="../search.html" />
+    <link rel="next" title="Joint Position" href="joint_position.html" />
+    <link rel="prev" title="Installatie van de Lerobot/LeLab ROS Repository" href="install.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            Lerobot ROS Repository
+              <img src="../_static/avans-hogeschool.png" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Zoek in documentatie" aria-label="Zoek in documentatie" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigatiemenu">
+              <p class="caption" role="heading"><span class="caption-text">Inhoudsopgave:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="overview.html">Inleiding</a></li>
+<li class="toctree-l1"><a class="reference internal" href="install.html">Installatie van de Lerobot/LeLab ROS Repository</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">MoveGroup-besturingsmodi</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#actietype-kiezen">Actietype kiezen</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#virtuele-omgeving-activeren">Virtuele omgeving activeren</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#lerobot-of-lelab-starten">LeRobot of LeLab starten</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#movegroup-servo-jog">MoveGroup Servo Jog</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#echte-robot">Echte robot</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#simulatie">Simulatie</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#movegroup-servo-twist">MoveGroup Servo Twist</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#id1">Echte robot</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id2">Simulatie</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#movegroup-follow-joint-trajectory">MoveGroup Follow Joint Trajectory</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#id3">Echte robot</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id4">Simulatie</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#movegroup-servo-pose">MoveGroup Servo Pose</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="joint_position.html">Joint Position</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ur.html">class Ur(Robot)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="teachbot.html">class Teachbot(Teleoperator)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="gamepad_6dof.html">class Gamepad6DOFTeleop(Teleoperator)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="adapting.html">Aanpassen voor custom robot types (welke al een ROS2 interface hebben)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="faq.html">Veel gestelde vragen</a></li>
+<li class="toctree-l1"><a class="reference internal" href="references.html">Referenties</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Navigatiemenu voor mobiel" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">Lerobot ROS Repository</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Paginanavigatie">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">MoveGroup-besturingsmodi</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/documentation/movegroup_control_modes.md.txt" rel="nofollow"> Bekijk paginabron</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section class="tex2jax_ignore mathjax_ignore" id="movegroup-besturingsmodi">
+<h1>MoveGroup-besturingsmodi<a class="headerlink" href="#movegroup-besturingsmodi" title="Link to this heading"></a></h1>
+<p>Deze pagina beschrijft de MoveGroup-besturingsmodi voor de UR-robot en hoe je
+de gewenste modus instelt.</p>
+<section id="actietype-kiezen">
+<h2>Actietype kiezen<a class="headerlink" href="#actietype-kiezen" title="Link to this heading"></a></h2>
+<p>Het actietype bepaalt hoe de UR-robot de commando’s verwerkt. De standaardwaarde
+in <code class="docutils literal notranslate"><span class="pre">UrROS2InterfaceConfig</span></code> is <code class="docutils literal notranslate"><span class="pre">movegroup_servo_jog</span></code>. Selecteer een modus met de
+commandline-optie <code class="docutils literal notranslate"><span class="pre">--robot.ros2_interface.action_type</span></code> of wijzig <code class="docutils literal notranslate"><span class="pre">action_type</span></code>
+in <code class="docutils literal notranslate"><span class="pre">UrROS2InterfaceConfig</span></code> in
+<code class="docutils literal notranslate"><span class="pre">lerobot-robot-ur/lerobot_robot_ur/config_ur.py</span></code>.</p>
+<p>Bij LeLab stel je <code class="docutils literal notranslate"><span class="pre">action_type</span></code> in <code class="docutils literal notranslate"><span class="pre">config_ur.py</span></code> in; de LeLab-interface
+biedt hiervoor geen commandline-optie. Start LeLab met <code class="docutils literal notranslate"><span class="pre">leLab</span></code> en selecteer
+<strong>Universal Robot (ROS 2)</strong> en <strong>Teachbot (ROS 2)</strong> bij de apparaatinstellingen.
+Deze combinatie is geschikt voor de joint-position-, Servo Jog- en Follow Joint
+Trajectory-modi. Start LeLab vanuit dezelfde virtuele omgeving waarin de ROS
+integraties zijn geïnstalleerd.</p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Waarde</p></th>
+<th class="head"><p>Beschrijving</p></th>
+<th class="head"><p>Status</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">movegroup_servo_jog</span></code></p></td>
+<td><p>MoveIt Servo met joint-jog-commando’s.</p></td>
+<td><p>Standaard; geschikt voor de Teachbot.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">movegroup_servo_twist</span></code></p></td>
+<td><p>MoveIt Servo met lineaire en hoek-snelheden.</p></td>
+<td><p>Vereist een teleoperator die twist-commando’s levert.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">movegroup_follow_joint_trajectory</span></code></p></td>
+<td><p>Stuurt joint-trajecten naar de trajectory-controller.</p></td>
+<td><p>Beschikbaar.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">joint_position</span></code></p></td>
+<td><p>Stuurt joint-posities naar de position-controller.</p></td>
+<td><p>Beschikbaar.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">movegroup_servo_pose</span></code></p></td>
+<td><p>MoveIt Servo pose-commando’s.</p></td>
+<td><p>De UR-actieafhandeling is nog niet geïmplementeerd.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">cartesian_velocity</span></code></p></td>
+<td><p>Cartesian velocity-commando’s.</p></td>
+<td><p>Niet geïmplementeerd.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">none</span></code></p></td>
+<td><p>Selecteert geen ROS-control-backend.</p></td>
+<td><p>Niet bruikbaar voor teleoperatie.</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="virtuele-omgeving-activeren">
+<h2>Virtuele omgeving activeren<a class="headerlink" href="#virtuele-omgeving-activeren" title="Link to this heading"></a></h2>
+<p>Voer LeRobot- en LeLab-commando’s uit vanuit de virtuele omgeving waarin LeLab
+en de ROS-integraties zijn geïnstalleerd. In de installatievoorbeelden op deze
+site is dat:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">cd</span><span class="w"> </span>~/lerobot
+<span class="nb">source</span><span class="w"> </span>.venv/bin/activate
+</pre></div>
+</div>
+</section>
+<section id="lerobot-of-lelab-starten">
+<h2>LeRobot of LeLab starten<a class="headerlink" href="#lerobot-of-lelab-starten" title="Link to this heading"></a></h2>
+<p>Start eerst de ROS 2-drivers die bij de gekozen besturingsmodus horen in
+afzonderlijke terminals. Zorg dat ROS 2 Jazzy en eventuele ROS-workspace
+overlays in de omgeving van die terminals zijn gesourced. Activeer in de
+terminal voor LeRobot of LeLab de virtuele omgeving zoals hierboven beschreven.</p>
+<div class="sd-card sd-sphinx-override sd-mb-3 sd-shadow-sm docutils">
+<div class="sd-card-body docutils">
+<div class="sd-tab-set docutils">
+<input checked="checked" id="sd-tab-item-0" name="sd-tab-set-0" type="radio">
+<label aria-controls="sd-tab-item-0-content" class="sd-tab-label" for="sd-tab-item-0">
+LeRobot</label><div class="sd-tab-content docutils" id="sd-tab-item-0-content">
+<p>Start de teleoperatie met het commando uit de sectie van de gewenste
+besturingsmodus. Bijvoorbeeld voor de standaardmodus Servo Jog:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>lerobot-teleoperate<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--robot.type<span class="o">=</span>lerobot_robot_ur<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--robot.ros2_interface.action_type<span class="o">=</span>movegroup_servo_jog<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--teleop.type<span class="o">=</span>lerobot_teleoperator_teachbot<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--fps<span class="o">=</span><span class="m">15</span>
+</pre></div>
+</div>
+</div>
+<input id="sd-tab-item-1" name="sd-tab-set-0" type="radio">
+<label aria-controls="sd-tab-item-1-content" class="sd-tab-label" for="sd-tab-item-1">
+LeLab</label><div class="sd-tab-content docutils" id="sd-tab-item-1-content">
+<p>Start LeLab:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>lelab
+</pre></div>
+</div>
+<p>Open de apparaatinstellingen en selecteer <strong>Universal Robot (ROS 2)</strong> als robot
+en <strong>Teachbot (ROS 2)</strong> als teleoperator. Start daarna de teleoperatie vanuit de
+interface. Stel voor de UR de gewenste <code class="docutils literal notranslate"><span class="pre">action_type</span></code> vooraf in
+<code class="docutils literal notranslate"><span class="pre">lerobot-robot-ur/lerobot_robot_ur/config_ur.py</span></code>; LeLab biedt hiervoor geen
+commandline-optie. Als LeLab in een andere virtuele omgeving is geïnstalleerd,
+activeer dan die omgeving in plaats van <code class="docutils literal notranslate"><span class="pre">~/lerobot/.venv</span></code>.</p>
+</div>
+</div>
+</div>
+</div>
+</section>
+<section id="movegroup-servo-jog">
+<h2>MoveGroup Servo Jog<a class="headerlink" href="#movegroup-servo-jog" title="Link to this heading"></a></h2>
+<p>Servo Jog stuurt joint-jog-commando’s naar MoveIt Servo. Dit is de
+standaardmodus en de modus voor gebruik met de Teachbot.</p>
+<section id="echte-robot">
+<h3>Echte robot<a class="headerlink" href="#echte-robot" title="Link to this heading"></a></h3>
+<p>Start de Teachbot:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>ros2<span class="w"> </span>launch<span class="w"> </span>teachbot_ros<span class="w"> </span>teachbot_rviz.launch.py
+</pre></div>
+</div>
+<p>Start de UR-robot:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>ros2<span class="w"> </span>launch<span class="w"> </span>my_ur_bringup<span class="w"> </span>real_robot.launch.py<span class="w"> </span>initial_joint_controller:<span class="o">=</span>forward_position_controller
+</pre></div>
+</div>
+<p>Start MoveGroup met Servo:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>ros2<span class="w"> </span>launch<span class="w"> </span>my_ur_bringup<span class="w"> </span>movegroup.launch.py<span class="w"> </span>launch_servo:<span class="o">=</span><span class="nb">true</span>
+</pre></div>
+</div>
+<p>Start de teleoperatie:</p>
+<div class="sd-card sd-sphinx-override sd-mb-3 sd-shadow-sm docutils">
+<div class="sd-card-body docutils">
+<div class="sd-tab-set docutils">
+<input checked="checked" id="sd-tab-item-2" name="sd-tab-set-1" type="radio">
+<label aria-controls="sd-tab-item-2-content" class="sd-tab-label" for="sd-tab-item-2">
+LeRobot</label><div class="sd-tab-content docutils" id="sd-tab-item-2-content">
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>lerobot-teleoperate<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--robot.type<span class="o">=</span>lerobot_robot_ur<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--robot.ros2_interface.action_type<span class="o">=</span>movegroup_servo_jog<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--teleop.type<span class="o">=</span>lerobot_teleoperator_teachbot<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--fps<span class="o">=</span><span class="m">15</span>
+</pre></div>
+</div>
+</div>
+<input id="sd-tab-item-3" name="sd-tab-set-1" type="radio">
+<label aria-controls="sd-tab-item-3-content" class="sd-tab-label" for="sd-tab-item-3">
+LeLab</label><div class="sd-tab-content docutils" id="sd-tab-item-3-content">
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>leLab
+</pre></div>
+</div>
+<p>Start <code class="docutils literal notranslate"><span class="pre">leLab</span></code>, selecteer <strong>Universal Robot (ROS 2)</strong> en <strong>Teachbot (ROS 2)</strong>
+en start de teleoperatie in de interface. Stel <code class="docutils literal notranslate"><span class="pre">action_type</span></code> vooraf in
+<code class="docutils literal notranslate"><span class="pre">config_ur.py</span></code> in.</p>
+</div>
+</div>
+</div>
+</div>
+</section>
+<section id="simulatie">
+<h3>Simulatie<a class="headerlink" href="#simulatie" title="Link to this heading"></a></h3>
+<p>Start de Teachbot-simulatie:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>ros2<span class="w"> </span>launch<span class="w"> </span>teachbot_ros<span class="w"> </span>sim_teachbot_rviz.launch.py
+</pre></div>
+</div>
+<p>Start de UR-simulatie met MoveGroup Servo:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>ros2<span class="w"> </span>launch<span class="w"> </span>my_ur_bringup<span class="w"> </span>simulation.launch.py<span class="w"> </span>initial_joint_controller:<span class="o">=</span>forward_position_controller<span class="w"> </span>launch_servo:<span class="o">=</span><span class="nb">true</span>
+</pre></div>
+</div>
+<p>Start de teleoperatie:</p>
+<div class="sd-card sd-sphinx-override sd-mb-3 sd-shadow-sm docutils">
+<div class="sd-card-body docutils">
+<div class="sd-tab-set docutils">
+<input checked="checked" id="sd-tab-item-4" name="sd-tab-set-2" type="radio">
+<label aria-controls="sd-tab-item-4-content" class="sd-tab-label" for="sd-tab-item-4">
+LeRobot</label><div class="sd-tab-content docutils" id="sd-tab-item-4-content">
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>lerobot-teleoperate<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--robot.type<span class="o">=</span>lerobot_robot_ur<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--robot.ros2_interface.action_type<span class="o">=</span>movegroup_servo_jog<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--robot.ros2_interface.sim<span class="o">=</span><span class="nb">true</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--teleop.type<span class="o">=</span>lerobot_teleoperator_teachbot<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--fps<span class="o">=</span><span class="m">15</span>
+</pre></div>
+</div>
+</div>
+<input id="sd-tab-item-5" name="sd-tab-set-2" type="radio">
+<label aria-controls="sd-tab-item-5-content" class="sd-tab-label" for="sd-tab-item-5">
+LeLab</label><div class="sd-tab-content docutils" id="sd-tab-item-5-content">
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>leLab
+</pre></div>
+</div>
+<p>Start <code class="docutils literal notranslate"><span class="pre">leLab</span></code>, selecteer <strong>Universal Robot (ROS 2)</strong> en <strong>Teachbot (ROS 2)</strong>
+en start de teleoperatie in de interface. Stel <code class="docutils literal notranslate"><span class="pre">action_type</span></code> vooraf in
+<code class="docutils literal notranslate"><span class="pre">config_ur.py</span></code> in.</p>
+</div>
+</div>
+</div>
+</div>
+</section>
+</section>
+<section id="movegroup-servo-twist">
+<h2>MoveGroup Servo Twist<a class="headerlink" href="#movegroup-servo-twist" title="Link to this heading"></a></h2>
+<p>Servo Twist stuurt de robot aan met lineaire en hoek-snelheden. Gebruik een
+teleoperator die twist-commando’s levert, zoals <code class="docutils literal notranslate"><span class="pre">gamepad_6dof</span></code>. De
+Teachbot-teleoperator levert joint-posities en is niet compatibel met deze
+modus. LeLab’s ingebouwde keyboard- en gamepad-teleoperators leveren
+joint-jogcommando’s, geen twist-commando’s; gebruik hiervoor LeRobot met een
+compatibele twist-teleoperator.</p>
+<p>Verbind de fysieke controller (bijvoorbeeld via Bluetooth) met de computer
+voordat je teleoperatie start.</p>
+<section id="id1">
+<h3>Echte robot<a class="headerlink" href="#id1" title="Link to this heading"></a></h3>
+<p>Start de UR-robot:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>ros2<span class="w"> </span>launch<span class="w"> </span>my_ur_bringup<span class="w"> </span>real_robot.launch.py<span class="w"> </span>initial_joint_controller:<span class="o">=</span>forward_position_controller
+</pre></div>
+</div>
+<p>Start MoveGroup met Servo:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>ros2<span class="w"> </span>launch<span class="w"> </span>my_ur_bringup<span class="w"> </span>movegroup.launch.py<span class="w"> </span>launch_servo:<span class="o">=</span><span class="nb">true</span>
+</pre></div>
+</div>
+<p>Start de teleoperatie:</p>
+<div class="sd-card sd-sphinx-override sd-mb-3 sd-shadow-sm docutils">
+<div class="sd-card-body docutils">
+<div class="sd-tab-set docutils">
+<input checked="checked" id="sd-tab-item-6" name="sd-tab-set-3" type="radio">
+<label aria-controls="sd-tab-item-6-content" class="sd-tab-label" for="sd-tab-item-6">
+LeRobot</label><div class="sd-tab-content docutils" id="sd-tab-item-6-content">
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>lerobot-teleoperate<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--robot.type<span class="o">=</span>lerobot_robot_ur<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--robot.ros2_interface.action_type<span class="o">=</span>movegroup_servo_twist<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--teleop.type<span class="o">=</span>gamepad_6dof<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--fps<span class="o">=</span><span class="m">15</span>
+</pre></div>
+</div>
+</div>
+<input id="sd-tab-item-7" name="sd-tab-set-3" type="radio">
+<label aria-controls="sd-tab-item-7-content" class="sd-tab-label" for="sd-tab-item-7">
+LeLab</label><div class="sd-tab-content docutils" id="sd-tab-item-7-content">
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>leLab
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+<section id="id2">
+<h3>Simulatie<a class="headerlink" href="#id2" title="Link to this heading"></a></h3>
+<p>Start de UR-simulatie met MoveGroup Servo:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>ros2<span class="w"> </span>launch<span class="w"> </span>my_ur_bringup<span class="w"> </span>simulation.launch.py<span class="w"> </span>initial_joint_controller:<span class="o">=</span>forward_position_controller<span class="w"> </span>launch_servo:<span class="o">=</span><span class="nb">true</span>
+</pre></div>
+</div>
+<p>Start de teleoperatie:</p>
+<div class="sd-card sd-sphinx-override sd-mb-3 sd-shadow-sm docutils">
+<div class="sd-card-body docutils">
+<div class="sd-tab-set docutils">
+<input checked="checked" id="sd-tab-item-8" name="sd-tab-set-4" type="radio">
+<label aria-controls="sd-tab-item-8-content" class="sd-tab-label" for="sd-tab-item-8">
+LeRobot</label><div class="sd-tab-content docutils" id="sd-tab-item-8-content">
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>lerobot-teleoperate<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--robot.type<span class="o">=</span>lerobot_robot_ur<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--robot.ros2_interface.action_type<span class="o">=</span>movegroup_servo_twist<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--teleop.type<span class="o">=</span>gamepad_6dof<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--fps<span class="o">=</span><span class="m">15</span>
+</pre></div>
+</div>
+</div>
+<input id="sd-tab-item-9" name="sd-tab-set-4" type="radio">
+<label aria-controls="sd-tab-item-9-content" class="sd-tab-label" for="sd-tab-item-9">
+LeLab</label><div class="sd-tab-content docutils" id="sd-tab-item-9-content">
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>leLab
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+</section>
+<section id="movegroup-follow-joint-trajectory">
+<h2>MoveGroup Follow Joint Trajectory<a class="headerlink" href="#movegroup-follow-joint-trajectory" title="Link to this heading"></a></h2>
+<p>Deze modus stuurt joint-trajecten naar de trajectory-controller. Gebruik de
+Teachbot-teleoperator om de UR-robot te bedienen.</p>
+<section id="id3">
+<h3>Echte robot<a class="headerlink" href="#id3" title="Link to this heading"></a></h3>
+<p>Start de Teachbot:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>ros2<span class="w"> </span>launch<span class="w"> </span>teachbot_ros<span class="w"> </span>teachbot_rviz.launch.py
+</pre></div>
+</div>
+<p>Start de UR-robot:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>ros2<span class="w"> </span>launch<span class="w"> </span>my_ur_bringup<span class="w"> </span>real_robot.launch.py
+</pre></div>
+</div>
+<p>Start MoveGroup:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>ros2<span class="w"> </span>launch<span class="w"> </span>my_ur_bringup<span class="w"> </span>move_group.launch.py
+</pre></div>
+</div>
+<p>Start de teleoperatie:</p>
+<div class="sd-card sd-sphinx-override sd-mb-3 sd-shadow-sm docutils">
+<div class="sd-card-body docutils">
+<div class="sd-tab-set docutils">
+<input checked="checked" id="sd-tab-item-10" name="sd-tab-set-5" type="radio">
+<label aria-controls="sd-tab-item-10-content" class="sd-tab-label" for="sd-tab-item-10">
+LeRobot</label><div class="sd-tab-content docutils" id="sd-tab-item-10-content">
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>lerobot-teleoperate<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--robot.type<span class="o">=</span>lerobot_robot_ur<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--robot.ros2_interface.action_type<span class="o">=</span>movegroup_follow_joint_trajectory<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--teleop.type<span class="o">=</span>lerobot_teleoperator_teachbot<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--fps<span class="o">=</span><span class="m">15</span>
+</pre></div>
+</div>
+</div>
+<input id="sd-tab-item-11" name="sd-tab-set-5" type="radio">
+<label aria-controls="sd-tab-item-11-content" class="sd-tab-label" for="sd-tab-item-11">
+LeLab</label><div class="sd-tab-content docutils" id="sd-tab-item-11-content">
+<p>Start <code class="docutils literal notranslate"><span class="pre">leLab</span></code>, selecteer <strong>Universal Robot (ROS 2)</strong> en <strong>Teachbot (ROS 2)</strong>
+en start de teleoperatie in de interface. Stel <code class="docutils literal notranslate"><span class="pre">action_type</span></code> vooraf in
+<code class="docutils literal notranslate"><span class="pre">config_ur.py</span></code> in.</p>
+</div>
+</div>
+</div>
+</div>
+</section>
+<section id="id4">
+<h3>Simulatie<a class="headerlink" href="#id4" title="Link to this heading"></a></h3>
+<p>Start de Teachbot-simulatie:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>ros2<span class="w"> </span>launch<span class="w"> </span>teachbot_ros<span class="w"> </span>sim_teachbot_rviz.launch.py
+</pre></div>
+</div>
+<p>Start de UR-simulatie:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>ros2<span class="w"> </span>launch<span class="w"> </span>my_ur_bringup<span class="w"> </span>simulation.launch.py
+</pre></div>
+</div>
+<p>Start de teleoperatie:</p>
+<div class="sd-card sd-sphinx-override sd-mb-3 sd-shadow-sm docutils">
+<div class="sd-card-body docutils">
+<div class="sd-tab-set docutils">
+<input checked="checked" id="sd-tab-item-12" name="sd-tab-set-6" type="radio">
+<label aria-controls="sd-tab-item-12-content" class="sd-tab-label" for="sd-tab-item-12">
+LeRobot</label><div class="sd-tab-content docutils" id="sd-tab-item-12-content">
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>lerobot-teleoperate<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--robot.type<span class="o">=</span>lerobot_robot_ur<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--robot.ros2_interface.action_type<span class="o">=</span>movegroup_follow_joint_trajectory<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--robot.ros2_interface.sim<span class="o">=</span><span class="nb">true</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--teleop.type<span class="o">=</span>lerobot_teleoperator_teachbot<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--fps<span class="o">=</span><span class="m">15</span>
+</pre></div>
+</div>
+</div>
+<input id="sd-tab-item-13" name="sd-tab-set-6" type="radio">
+<label aria-controls="sd-tab-item-13-content" class="sd-tab-label" for="sd-tab-item-13">
+LeLab</label><div class="sd-tab-content docutils" id="sd-tab-item-13-content">
+<p>Start <code class="docutils literal notranslate"><span class="pre">leLab</span></code>, selecteer <strong>Universal Robot (ROS 2)</strong> en <strong>Teachbot (ROS 2)</strong>
+en start de teleoperatie in de interface. Stel <code class="docutils literal notranslate"><span class="pre">action_type</span></code> vooraf in
+<code class="docutils literal notranslate"><span class="pre">config_ur.py</span></code> in.</p>
+</div>
+</div>
+</div>
+</div>
+</section>
+</section>
+<section id="movegroup-servo-pose">
+<h2>MoveGroup Servo Pose<a class="headerlink" href="#movegroup-servo-pose" title="Link to this heading"></a></h2>
+<p>Servo Pose is niet geïmplementeerd in de UR-actieafhandeling. De huidige
+teleoperatiecommando’s sturen geen pose-commando’s aan; selecteer deze modus
+daarom niet voor teleoperatie.</p>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Voettekst">
+        <a href="install.html" class="btn btn-neutral float-left" title="Installatie van de Lerobot/LeLab ROS Repository" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Vorige</a>
+        <a href="joint_position.html" class="btn btn-neutral float-right" title="Joint Position" accesskey="n" rel="next">Volgende <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright Gerard Harkema.</p>
+  </div>
+
+  Gebouwd met <a href="https://www.sphinx-doc.org/">Sphinx</a> met een
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">thema</a>
+    geleverd door <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
