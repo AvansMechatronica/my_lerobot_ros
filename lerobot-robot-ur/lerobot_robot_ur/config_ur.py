@@ -31,6 +31,8 @@ class ROS2InterfaceConfig:
     )
     # Joint name used for the gripper in ROS interfaces and command messages.
     gripper_joint_name: str = "gripper_joint"   #was gripper_joint
+    # Joint in /joint_states containing the measured gripper position.
+    gripper_state_joint_name: str = "robotiq_85_left_knuckle_joint"
     # Reference frame used for Cartesian commands (typically the robot base frame).
     base_link: str = "base_link"
     # Maximum commanded linear speed in meters/second for Cartesian servo modes.

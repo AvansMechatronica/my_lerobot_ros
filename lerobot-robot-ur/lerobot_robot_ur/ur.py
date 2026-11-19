@@ -168,12 +168,12 @@ class Ur(Robot):
         # print(f"Final action sent: {action}")
 
 ## prints toegevoegd        
-        # print("ACTION WRITTEN TO DATASET:")
-        # print(action)
-        # print(
-        #     "gripper =", action.get("gripper"),
-        #     "gripper_joint =", action.get("gripper_joint")
-        # )
+        print("ACTION WRITTEN TO DATASET:")
+        print(action)
+        print(
+             "gripper =", action.get("gripper"),
+             "gripper_joint =", action.get("gripper_joint")
+        )
         return action
 
 

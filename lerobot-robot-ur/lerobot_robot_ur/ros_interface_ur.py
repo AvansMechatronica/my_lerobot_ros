@@ -185,6 +185,10 @@ class ROS2Interface:
         }
         
         name_to_index = {name: i for i, name in enumerate(msg.name)}
+
+        gripper_index = name_to_index.get(self.config.ros2_interface.gripper_state_joint_name)
+        if gripper_index is not None and gripper_index < len(msg.position):
+            self._last_joint_state["position"]["gripper_joint"] = msg.position[gripper_index]
         
         for joint_name in self.config.ros2_interface.arm_joint_names:
             # print("LOOKING FOR:", joint_name)
